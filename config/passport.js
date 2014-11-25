@@ -101,7 +101,8 @@ module.exports = function(passport) {
             password: 'J_toI-s6b0BPyFK6n3UFto8HZO',
             database: 'd1l0hv7prm6i58',
             host: 'ec2-54-197-249-212.compute-1.amazonaws.com',
-            port: 5432
+            port: 5432,
+            ssl:true
         });
         client.connect();
         //query is executed once connection is established and
