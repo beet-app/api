@@ -94,7 +94,7 @@ module.exports = function(passport) {
 
         console.log(process.env.DATABASE_URL);
         //var conString = "postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58";
-        pg.connect(conString, function(err, client, done) {
+        pg.connect(process.env.DATABASE_URL, function(err, client, done) {
             if (err){
                 console.log(err);
                 return done(err);
