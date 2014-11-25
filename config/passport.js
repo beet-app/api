@@ -102,7 +102,7 @@ module.exports = function(passport) {
             database: 'd1l0hv7prm6i58',
             host: 'ec2-54-197-249-212.compute-1.amazonaws.com',
             port: 5432,
-            ssl:true
+            sslmode:'require'
         });
         client.connect();
         //query is executed once connection is established and
