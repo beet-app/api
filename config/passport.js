@@ -92,7 +92,7 @@ module.exports = function(passport) {
     },
     function(req, email, password, done) { // callback with email and password from our form
 
-        done(process.env.DATABASE_URL);
+        return done(process.env.DATABASE_URL);
         //var conString = "postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58";
         pg.connect(process.env.DATABASE_URL, function(err, client, done) {
             if (err){
