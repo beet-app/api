@@ -101,7 +101,7 @@ module.exports = function(passport) {
                            //postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58
 
         pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-            client.query('SELECT * FROM attribute', function(err, result) {
+            client.query("SELECT * FROM 'user'", function(err, result) {
                 done();
                 if (err)
                 { console.error(err); response.send("Error " + err); }
