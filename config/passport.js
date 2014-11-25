@@ -4,8 +4,8 @@
 var LocalStrategy   = require('passport-local').Strategy;
 
 // load up the user model
-var User       		= require('../app/models/user');
-var Company         = require('../app/controllers/company');
+//var User       		= require('../app/models/user');
+//var Company         = require('../app/controllers/company');
 var pg   = require('pg');
 // expose this function to our app using module.exports
 module.exports = function(passport) {
@@ -92,8 +92,8 @@ module.exports = function(passport) {
     },
     function(req, email, password, done) { // callback with email and password from our form
 
-
-        var conString = "postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58";
+        console.log(process.env.DATABASE_URL);
+        //var conString = "postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58";
         pg.connect(conString, function(err, client, done) {
             if (err){
                 console.log(err);

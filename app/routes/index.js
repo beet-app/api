@@ -85,7 +85,7 @@ module.exports = function(app, passport) {
     });
 
 
-
+    /*
     var objPerson = require("../controllers/person");
     router.get("/:companyId/person" ,isLoggedIn, objPerson.listByCompany);
     router.get("/person/:personId" ,isLoggedIn, objPerson.findOne);
@@ -135,7 +135,9 @@ module.exports = function(app, passport) {
     router.get("/" + strCtrl,  function (req,res){objCtrl.find(function(err, data){res.json(data)})});
     router.post("/" + strCtrl, function (req,res,next){objCtrl(req.body).save(res.send("OK !"))});
 
-     /* */
+     /*
+
+     */
 
 
 
