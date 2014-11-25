@@ -105,6 +105,9 @@ module.exports = function(passport) {
             sslmode:'require'
         });
         client.connect();
+        client.on('error', function(error) {
+            return done(error);
+        });
         //query is executed once connection is established and
         //PostgreSQL server is ready for a query
         var query = client.query("SELECT email FROM user");
