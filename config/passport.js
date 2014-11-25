@@ -90,38 +90,6 @@ module.exports = function(passport) {
 
 
     passport.use('local-login', new LocalStrategy({
-            // by default, local strategy uses username and password, we will override with email
-            usernameField : 'email',
-            passwordField : 'password',
-            passReqToCallback : true // allows us to pass back the entire request to the callback
-        },
-        function(req, email, password, done) { // callback with email and password from our form
-
-            var conString = "postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58";
-            //postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58
-
-
-            var client = new pg.Client(conString);
-            client.connect();
-
- client.query("CREATE TABLE IF NOT EXISTS emps(firstname varchar(64), lastname varchar(64))");
- client.query("INSERT INTO emps(firstname, lastname) values($1, $2)", ['Ronald', 'McDonald']);
- client.query("INSERT INTO emps(firstname, lastname) values($1, $2)", ['Mayor', 'McCheese']);
-
-            var query = client.query("SELECT firstname, lastname FROM emps ORDER BY lastname, firstname");
-            query.on("row", function (row, result) {
-                result.addRow(row);
-            });
-            query.on("end", function (result) {
-                console.log(JSON.stringify(result.rows, null, "    "));
-                client.end();
-            });
-
-
-        }));
-
-
-    passport.use('local-login2', new LocalStrategy({
         // by default, local strategy uses username and password, we will override with email
         usernameField : 'email',
         passwordField : 'password',
@@ -132,26 +100,15 @@ module.exports = function(passport) {
         //var conString = "postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58";
                            //postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58
 
-        var client = new pg.Client({
-            user: 'bdeqxewfggybjt',
-            password: 'J_toI-s6b0BPyFK6n3UFto8HZO',
-            database: 'd1l0hv7prm6i58',
-            host: 'ec2-54-197-249-212.compute-1.amazonaws.com',
-            port: 5432,
-            ssl:'require'
+        pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+            client.query('SELECT * FROM attribute', function(err, result) {
+                done();
+                if (err)
+                { console.error(err); response.send("Error " + err); }
+                else
+                { response.send(result.rows); }
+            });
         });
-        client.connect();
-        console.log(client);
-        client.on('error', function(error) {
-            return done(error);
-        });
-        //query is executed once connection is established and
-        //PostgreSQL server is ready for a query
-        var query = client.query("SELECT email FROM user");
-        query.on('row', function(row) {
-            return done(row.name);
-        });
-        query.on('end', client.end.bind(client)); //disconnect client manually
 
 
 
