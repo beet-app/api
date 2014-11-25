@@ -7,6 +7,7 @@ var LocalStrategy   = require('passport-local').Strategy;
 //var User       		= require('../app/models/user');
 //var Company         = require('../app/controllers/company');
 var pg   = require('pg');
+
 // expose this function to our app using module.exports
 module.exports = function(passport) {
 
@@ -92,33 +93,24 @@ module.exports = function(passport) {
     },
     function(req, email, password, done) { // callback with email and password from our form
 
-        return done(process.env.DATABASE_URL);
         //var conString = "postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58";
-        pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-            if (err){
-                console.log(err);
-                return done(err);
-            }
+                           //postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58
 
-
-            client.query("SELECT email,password from 'user' where email='$1'", [email], function(err, user) {
-                //call `done()` to release the client back to the pool
-                console.log(user);
-                done();
-
-                if(err) {
-                    return console.error('error running query', err);
-                }
-
-                if (user) {
-                    return done(null, user);
-                } else {
-
-
-                }
-                //output: 1
-            });
+        var client = new pg.Client({
+            user: 'bdeqxewfggybjt',
+            password: 'J_toI-s6b0BPyFK6n3UFto8HZO',
+            database: 'd1l0hv7prm6i58',
+            host: 'ec2-54-197-249-212.compute-1.amazonaws.com',
+            port: 5432
         });
+        client.connect();
+        //query is executed once connection is established and
+        //PostgreSQL server is ready for a query
+        var query = client.query("SELECT email FROM user");
+        query.on('row', function(row) {
+            return done(row.name);
+        });
+        query.on('end', client.end.bind(client)); //disconnect client manually
 
 
 
