@@ -85,7 +85,43 @@ module.exports = function(passport) {
     // we are using named strategies since we have one for login and one for signup
     // by default, if there was no name, it would just be called 'local'
 
+
+
+
+
     passport.use('local-login', new LocalStrategy({
+            // by default, local strategy uses username and password, we will override with email
+            usernameField : 'email',
+            passwordField : 'password',
+            passReqToCallback : true // allows us to pass back the entire request to the callback
+        },
+        function(req, email, password, done) { // callback with email and password from our form
+
+            var conString = "postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58";
+            //postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58
+
+
+            var client = new pg.Client(conString);
+            client.connect();
+
+ client.query("CREATE TABLE IF NOT EXISTS emps(firstname varchar(64), lastname varchar(64))");
+ client.query("INSERT INTO emps(firstname, lastname) values($1, $2)", ['Ronald', 'McDonald']);
+ client.query("INSERT INTO emps(firstname, lastname) values($1, $2)", ['Mayor', 'McCheese']);
+
+            var query = client.query("SELECT firstname, lastname FROM emps ORDER BY lastname, firstname");
+            query.on("row", function (row, result) {
+                result.addRow(row);
+            });
+            query.on("end", function (result) {
+                console.log(JSON.stringify(result.rows, null, "    "));
+                client.end();
+            });
+
+
+        }));
+
+
+    passport.use('local-login2', new LocalStrategy({
         // by default, local strategy uses username and password, we will override with email
         usernameField : 'email',
         passwordField : 'password',
@@ -102,9 +138,10 @@ module.exports = function(passport) {
             database: 'd1l0hv7prm6i58',
             host: 'ec2-54-197-249-212.compute-1.amazonaws.com',
             port: 5432,
-            sslmode:'require'
+            ssl:'require'
         });
         client.connect();
+        console.log(client);
         client.on('error', function(error) {
             return done(error);
         });
