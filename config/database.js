@@ -1,8 +1,7 @@
-/* *** connect to mongoDB database on modulus.io
- 'mongodb://localhost/beet'
- */
 module.exports = {
-    //url : 'mongodb://beet:beet123@ds061189.mongolab.com:61189/beet'
-    url : 'mongodb://beet:beet@novus.modulusmongo.net:27017/adyvi9hU'
+    host     : 'us-cdbr-iron-east-01.cleardb.net',
+    user     : 'b4569b54fd95d2',
+    password : '290d6bf0',
+    database: 'heroku_f1a5dc5558b573e'
 };
 

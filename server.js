@@ -19,7 +19,6 @@ app.use(cors({
        'http://177.72.244.6',
        'http://beet.cc',
        'http://192.168.16.58:9000'
-
    ]
 }));
 
@@ -41,9 +40,9 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
-require('./config/passport')(passport);
+require('./app/passport')(passport);
 
-var router         = require('./app/routes')(app, passport);
+var router = require('./app/router')(app, passport);
 
 app.use('/api', router);
 
