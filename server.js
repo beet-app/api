@@ -9,18 +9,9 @@ var session        = require('express-session');
 var cors           = require('express-cors');
 
 
+var app = express();
 
-var app        = express();
-
-app.use(cors({
-   allowedOrigins: [
-       'http://127.0.0.1:9000',
-       'http://201.87.228.140:9000',
-       'http://177.72.244.6',
-       'http://beet.cc',
-       'http://192.168.16.58:9000'
-   ]
-}));
+app.use(cors(require('./config/cors')));
 
 
 var port = process.env.PORT || 1313; 		// set our port// load the config

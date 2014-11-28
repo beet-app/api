@@ -1,5 +1,5 @@
 var mysql = require('mysql');
-var config = require('../config/database');
+var config = require('../../config/database');
 var q = require("q");
 module.exports = {
     query: function (queryBuilder) {

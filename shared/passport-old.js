@@ -4,10 +4,8 @@
 var LocalStrategy   = require('passport-local').Strategy;
 
 // load up the user model
-//var User       		= require('../app/models/user');
-//var Company         = require('../app/controllers/company');
-
-var userController = require('./controllers/user');
+var User       		= require('../models/user');
+var Company         = require('../controllers/company');
 
 // expose this function to our app using module.exports
 module.exports = function(passport) {
@@ -20,15 +18,14 @@ module.exports = function(passport) {
 
     // used to serialize the user for the session
     passport.serializeUser(function(user, done) {
-        done(null, user.uuid);
+        done(null, user.id);
     });
 
     // used to deserialize the user
-    passport.deserializeUser(function(uuid, done) {
-        userController.getOne(uuid).then(function(user) {
-            if (user===null)
-                done(null);
-            done(null, user);
+    passport.deserializeUser(function(id, done) {
+        User.findById(id, function(err, user) {
+                    
+            done(err, user);
         });
     });
 
@@ -48,9 +45,6 @@ module.exports = function(passport) {
 
 		// find a user whose email is the same as the forms email
 		// we are checking to see if the user trying to login already exists
-
-
-
         User.findOne({ 'local.email' :  email }, function(err, user) {
             // if there are any errors, return the error
             if (err)
@@ -87,10 +81,6 @@ module.exports = function(passport) {
     // we are using named strategies since we have one for login and one for signup
     // by default, if there was no name, it would just be called 'local'
 
-
-
-
-
     passport.use('local-login', new LocalStrategy({
         // by default, local strategy uses username and password, we will override with email
         usernameField : 'email',
@@ -99,73 +89,26 @@ module.exports = function(passport) {
     },
     function(req, email, password, done) { // callback with email and password from our form
 
-        //var conString = "postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58";
-                           //postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58
-
-
-
-
-
-        userController.validateEmail(email).then( function(user) {
-
+        // find a user whose email is the same as the forms email
+        // we are checking to see if the user trying to login already exists
+        User.findOne({ 'local.email' :  email }, function(err, user) {
             // if there are any errors, return the error before anything else
-            if (user===null)
-                return done(null);
+            console.log(user);
+            if (err)
+                return done(err);
+
+            // if no user is found, return the message
+            if (!user)
+                return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
 
             // if the user is found but the password is wrong
-            userController.validatePassword(user.password, password).then( function(bln) {
-                if (!bln){
-                    var mandrill = require('mandrill-api/mandrill');
-                    var mandrill_client = new mandrill.Mandrill('1qxQPud-ZKI4a-7PnW1Q0w');
+            if (!user.validPassword(password))
+                return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
 
-                    // the sender email will look like 'John Doe <notification@sampleapp.com>'
-                    var fromEmail = 'support@beet.cc';
-
-                    // by forming this address this way, when users reply, they will see "Reply to Comment"
-                    // and not necessesarily the weird looking email address (that, of course, will depend
-                    // on the user's email client)
-                    var replyToEmail = "Reply to Comment <support@replies.sampleapp.com>";
-
-                    // it's always a good idea to add a tag to similar messages, that will let you filter
-                    // them out easily in mandrill's admin portal
-                    var tags = [ "sample-messages" ];
-
-                    var to = {
-                        "email": "thiagokroger@gmail.com",
-                        "name": "Thiago Kroger "
-                    };
-
-                    var message = {
-                        "html": "<p>Estao tentando entrar na sua conta, guerreiro !</p>",
-                        "text": "Estao tentando entrar na sua conta, guerreiro master !",
-                        "subject": "Falha no Login",
-                        "from_email": "support@beet.cc",
-                        "from_name": "Equipe Beet",
-                        "to": [{
-                            "email": "thiagokroger@gmail.com",
-                            "name": "Thiago Kroger",
-                            "type": "to"
-                        }]
-
-                    };
-                    mandrill_client.messages.send({"message": message, "async": true, "ip_pool": "asdsa"}, function(result) {
-                        console.log('Mandrill API called.');
-                        console.log(result);
-                    }, function(e) {
-                        console.error('A mandrill error occurred: ' + e.name + ' - ' + e.message);
-                    });
-                    //mandrill_client.send("Equipe Beet", fromEmail, to, replyToEmail, "Tentativa de login", "fala sherif, tentaram acessar sua conta la ze", tags);
-                    return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
-                }
-
-                // all is well, return successful user
-
-
-
-                return done(null, user);
-            });
+            // all is well, return successful user
+            
+            return done(null, user);
         });
-
 
     }));
 
