@@ -23,9 +23,9 @@ module.exports = {
         var where = "";
         for (x=0;x<arrFilters.length;x++){
 
-            //value = connection.escape(arrFilters[x].value);
-            //arrFilters[x].value = connection.escape(arrFilters[x].value);
-            where += (where=="") ? arrFilters[x].field+"='"+arrFilters[x].value+"'" : " AND " + arrFilters[x].field+"='"+arrFilters[x].value+"'";
+            value = connection.escape(arrFilters[x].value);
+            console.log(value);
+            where += (where=="") ? arrFilters[x].field+"="+value+"" : " AND " + arrFilters[x].field+"="+value+"";
         }
 
         var query = "SELECT " + fields;

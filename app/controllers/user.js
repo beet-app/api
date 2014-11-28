@@ -1,5 +1,6 @@
 var q = require("q");
 var conn = require('../conn');
+var bcrypt   = require('bcrypt-nodejs');
 module.exports = {
     validateEmail: function (email) {
 
@@ -7,7 +8,7 @@ module.exports = {
 
         var queryBuilder = {
             table:"user",
-            fields:["email"],
+            fields:["uuid","email","password"],
             filters:[
                 {
                     field:"email",
@@ -27,7 +28,12 @@ module.exports = {
         return d.promise;
 
     },
-    validatePassword: function (email, password) {
+    validatePassword: function (password, reqpassword) {
+        var d = new q.defer();
+        d.resolve(bcrypt.compareSync(reqpassword, password));
+        return d.promise;
+    },
+    getOne: function (uuid) {
 
         var d = new q.defer();
 
@@ -36,12 +42,8 @@ module.exports = {
             fields:["uuid,email"],
             filters:[
                 {
-                    field:"password",
-                    value:password
-                },
-                {
-                    field:"email",
-                    value:email
+                    field:"uuid",
+                    value:uuid
                 }
             ]
         };
@@ -56,7 +58,6 @@ module.exports = {
         return d.promise;
 
     }
-
 };
 
 /*
