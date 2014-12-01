@@ -1,6 +1,7 @@
 var q = require("q");
-var conn = require('../conn');
+var conn = require('../shared/conn');
 var bcrypt   = require('bcrypt-nodejs');
+
 module.exports = function(feature) {
     return {
         getOne: function (search) {
@@ -13,7 +14,7 @@ module.exports = function(feature) {
             };
 
             conn.query(queryBuilder).then(function (featureDataSet) {
-                if (dataSet.rows.length > 0) {
+                if (featureDataSet.rows.length > 0) {
 
                     var obj = featureDataSet.rows[0];
 
@@ -42,6 +43,23 @@ module.exports = function(feature) {
 
             return d.promise;
 
+        },
+        exists: function (search) {
+            var d = new q.defer();
+
+            if (typeof(search)=="string"){
+                search = {field:"uuid",value:search};
+            }
+
+            var queryBuilder = {
+                table: feature,
+                filters: search
+            };
+            conn.query(queryBuilder).then(function (featureDataSet) {
+                d.resolve(featureDataSet.rows.length > 0);
+            });
+
+            return d.promise;
         }
     }
 }

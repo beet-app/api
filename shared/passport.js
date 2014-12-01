@@ -3,7 +3,7 @@
 // load all the things we need
 var LocalStrategy   = require('passport-local').Strategy;
 
-var common   = require('common');
+var common   = require('./common');
 
 var userController = require('./../controllers/user');
 
@@ -111,6 +111,7 @@ module.exports = function(passport) {
                 return done(null);
 
             // if the user is found but the password is wrong
+
             userController.validatePassword(user.password, password).then( function(bln) {
                 if (!bln){
                     var mandrill = require('mandrill-api/mandrill');
@@ -128,14 +129,7 @@ module.exports = function(passport) {
                     // them out easily in mandrill's admin portal
                     var tags = [ "sample-messages" ];
 
-
-                    var mail = {
-                        "name":"LOGIN_ATTEMPT",
-                        "recipients":recipients
-                    };
-                    common.sendMail(mail).then(function(data){
-
-                    });
+                    //common.sendMail({ "name":"LOGIN_ATTEMPT","recipients":recipients});
 
                     return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
                 }

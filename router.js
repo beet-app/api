@@ -5,58 +5,64 @@ var strCtrl = "";
 module.exports = function(app, passport) {
 
 
-
-
-
-    // route to test if the user is logged in or not
-    router.get('/loggedin', isLoggedIn, function (req, res) {
-        res.send(req.user);
-    });
-
-    // process the login form
-    router.post('/login', passport.authenticate('local-login'),
+    router.get('/teste/:feature',
         function (req, res) {
-            res.json(req.user);
+            var conn = require("./shared/conn");
+            conn.freeQuery("select * from "+req.params.feature).then(function(dataSet){
+                res.json(dataSet.rows);
+            });
+            //res.redirect("http://127.0.0.1:9000/#/home");
+        }
+    );
+    router.get('/teste2',
+        function (req, res) {
+            var ct = require("./controllers/attribute");
+            ct.getAttributeGroupByFeature("person").then(function(teste){
+
+            });
             //res.redirect("http://127.0.0.1:9000/#/home");
         }
     );
 
-    // =====================================
-    // SIGNUP ==============================
-    // =====================================
-    // show the signup form
-    router.get('/signup', function (req, res) {
-
-        // render the page and pass in any flash data if it exists
-        res.send('cadastrar');
+    router.get('/loggedin', isLoggedIn, function (req, res) {
+        res.send(req.user);
     });
 
-    // process the signup form
-    //app.post('/signup', passport.authenticate('local-signup', {
-    //    successRedirect : '/profile', // redirect to the secure profile section
-    //    failureRedirect : '/signup', // redirect back to the signup page if there is an error
-    //    failureFlash : true // allow flash messages
-    //}));
-    router.post('/signup', passport.authenticate('local-signup'),
+    router.post('/login', passport.authenticate('local-login'),
         function (req, res) {
-            // If this function gets called, authentication was successful.
-            // `req.user` contains the authenticated user.
-            res.send('registrou');
+            res.json(req.user);
         }
     );
 
 
-    // =====================================
-    // PROFILE SECTION =========================
-    // =====================================
-    // we will want this protected so you have to be logged in to visit
-    // we will use route middleware to verify this (the isLoggedIn function)
-    router.get('/profile-check', isLoggedIn, function (req, res) {
-        res.send("logado !");
-        //res.render('profile.ejs', {
-        //    user : req.user // get the user out of session and pass to template
-        //});
+    router.post('/signup', function (req, res) {
+        var userController = require("./controllers/user");
+
+        userController.save(req.body).then(function(response){
+            if (response.error !== null){
+                res.json(401, response);
+            }else{
+                res.send(200);
+            }
+        });
+
     });
+
+    router.post('/user/validate', function (req, res) {
+        var userController = require("./controllers/user");
+
+        userController.validate(req.body).then(function(response){
+            if (response.error !== null){
+                res.json(401, response);
+            }else{
+                res.send(200);
+            }
+        });
+
+    });
+
+
+
 //
     //// =====================================
     //// LOGOUT ==============================
@@ -68,9 +74,6 @@ module.exports = function(app, passport) {
     });
 
 
-    router.get('/logged-user', isLoggedIn, function (req, res) {
-        res.json(req.user);
-    });
 
 
     /*

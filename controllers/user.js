@@ -1,6 +1,7 @@
 var q = require("q");
-var conn = require('../conn');
+var conn = require('../shared/conn');
 var bcrypt   = require('bcrypt-nodejs');
+var common   = require('../shared/common');
 module.exports = {
     validateEmail: function (email) {
 
@@ -13,9 +14,15 @@ module.exports = {
                 {
                     field:"email",
                     value:email
+                },
+                {
+                    field:"active",
+                    value:'1'
                 }
             ]
         };
+
+
 
         conn.query(queryBuilder).then(function(dataSet){
             if (dataSet.rows.length>0){
@@ -57,6 +64,92 @@ module.exports = {
 
         return d.promise;
 
+    },
+    save: function (user) {
+        var d = new q.defer();
+
+        var userController = require("./global")("user");
+
+        if (user.email !== undefined && user.password !== undefined){
+
+            var validator = require('validator');
+            if (validator.isEmail(user.email)){
+                userController.exists({field:"email",value:user.email}).then(function(blnExists){
+                    if (!blnExists){
+                        if (user.uuid === undefined){
+                            common.generateUUID().then(function(uuid){
+                                user.uuid = uuid;
+                                user.password = bcrypt.hashSync(user.password, bcrypt.genSaltSync(8), null);
+                                conn.freeExec("insert into user values ('"+user.uuid+"','"+user.email+"','"+user.password+"',0)").then(function(dataSet){
+                                    //conn.freeExec("delete from user where email<>'admin'").then(function(dataSet){
+
+                                    /*common.sendMail({
+                                     "name":"LOGIN_VALIDATE",
+                                     "recipients":[user.email],
+                                     "params":{"uuid":user.uuid}
+                                     });
+                                     */
+
+                                    d.resolve({result:dataSet.result, error:(dataSet.result.affectedRows>0) ? null : dataSet.error});
+
+                                });
+                            });
+
+                        }else{
+                            d.resolve(common.getErrorObj("not_yet"));
+                        }
+                    }else{
+                        d.resolve(common.getErrorObj("user_exists"));
+                    }
+                });
+            }else{
+                d.resolve(common.getErrorObj("invalid_email"));
+            }
+
+
+        }else{
+            d.resolve(common.getErrorObj("missing_params"));
+        }
+
+
+
+
+
+
+
+        return d.promise;
+    },
+    validate: function (user) {
+        var d = new q.defer();
+
+        var userController = require("./global")("user");
+
+        if (user.uuid !== undefined){
+
+            userController.exists(user.uuid).then(function(blnExists){
+                if (blnExists){
+                    var query = "update user set active=1 where uuid='"+user.uuid+"'";
+                    conn.freeExec(query).then(function(dataSet){
+
+                        /*common.sendMail({
+                         "name":"LOGIN_VALIDATE",
+                         "recipients":[user.email],
+                         "params":{"uuid":user.uuid}
+                         });*/
+
+                        d.resolve({result:dataSet.result, error:(dataSet.result.affectedRows>0) ? null : dataSet.error});
+
+                    });
+                }else{
+                    d.resolve(common.getErrorObj("not_found_user"));
+                }
+            });
+
+        }else{
+            d.resolve(common.getErrorObj("missing_params"));
+        }
+
+        return d.promise;
     }
 };
 
