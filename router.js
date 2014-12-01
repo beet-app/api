@@ -68,18 +68,16 @@ module.exports = function(app, passport) {
 
     });
 
-    router.post('/user/validate', isLoggedIn, function (req, res) {
+    router.get('/user/company', isLoggedIn, function (req, res) {
         var userController = require("./controllers/user");
 
-        console.log(req.user);
-
-        /*userController.validate(req.body).then(function(response){
+        userController.getAllCompanies(req.user).then(function(response){
             if (response.error !== null){
                 res.json(401, response);
             }else{
-                res.send(200);
+                res.json(response);
             }
-        });*/
+        });
 
     });
 

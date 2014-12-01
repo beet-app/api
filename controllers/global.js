@@ -8,6 +8,10 @@ module.exports = function(feature) {
 
             var d = new q.defer();
 
+            if (typeof(search)=="string"){
+                search = {field:"uuid",value:search};
+            }
+
             var queryBuilder = {
                 table: feature,
                 filters: search
@@ -18,24 +22,13 @@ module.exports = function(feature) {
 
                     var obj = featureDataSet.rows[0];
 
-                    var queryBuilder = {
-                        table: feature + "_attribute",
-                        filters: search
-                    };
-                    conn.query(queryBuilder).then(function (AttributeDataSet) {
-                        if (dataSet.rows.length > 0) {
-
-                            obj = dataSet.rows[0];
-
-
-
-                            d.resolve(dataSet.rows[0]);
-                        } else {
-                            d.resolve(null);
+                    var attributeController = require("./attribute");
+                    attributeController.getAttributeValueGroupByFeature(feature, obj.uuid).then(function(attributes){
+                        if (attributes!==null){
+                            obj.attributes = attributes;
                         }
+                        d.resolve(obj);
                     });
-
-                    d.resolve(dataSet.rows[0]);
                 } else {
                     d.resolve(null);
                 }

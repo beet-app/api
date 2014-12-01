@@ -114,21 +114,6 @@ module.exports = function(passport) {
 
             userController.validatePassword(user.password, password).then( function(bln) {
                 if (!bln){
-                    var mandrill = require('mandrill-api/mandrill');
-                    var mandrill_client = new mandrill.Mandrill('1qxQPud-ZKI4a-7PnW1Q0w');
-
-                    // the sender email will look like 'John Doe <notification@sampleapp.com>'
-                    var fromEmail = 'support@beet.cc';
-
-                    // by forming this address this way, when users reply, they will see "Reply to Comment"
-                    // and not necessesarily the weird looking email address (that, of course, will depend
-                    // on the user's email client)
-                    var replyToEmail = "Reply to Comment <support@replies.sampleapp.com>";
-
-                    // it's always a good idea to add a tag to similar messages, that will let you filter
-                    // them out easily in mandrill's admin portal
-                    var tags = [ "sample-messages" ];
-
                     //common.sendMail({ "name":"LOGIN_ATTEMPT","recipients":recipients});
 
                     return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata

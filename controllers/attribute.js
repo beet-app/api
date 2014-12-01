@@ -51,52 +51,31 @@ module.exports = {
         return d.promise;
     },
 
-    getAttributeValueGroupByFeature: function (feature) {
+    getAttributeValueGroupByFeature: function (feature, uuid) {
 
         var d = new q.defer();
 
-        /*
-        var featureAttributeTable = attribute+"_attribute";
-
-        var queryBuilder = {
-            table:feature,
-            fields:[
-                "attribute_group.description 'group'",
-                "attribute.description 'attribute'",
-                featureAttributeTable + ".value 'value'"
-            ],
-            join:[
-                {
-                    type:"I",
-                    fields:[
-
-                    ],
-                    value:email
-                }
-
-            ],
-            filters:[
-                {
-                    field:"email",
-                    value:email
-                }
-            ]
-        };
-        */
         var query = "";
-        query += "select";
-        query += "ag.description 'group', a.description 'attribute', vfa.value 'value'";
-        query += "from attribute a";
-        query += "inner join attribute_group ag on a.attribute_group_uuid=ag.uuid";
-        query += "inner join attribute_group_feature agf on ag.uuid=agf.attribute_group_uuid";
-        query += "inner join feature f on f.uuid=agf.feature_uuid and f.description='"+feature+"'";
-        query += "left join "+feature+"_attribute vfa on vfa.attribute_uuid=a.uuid and vfa."+feature+"_uuid='"+feature+"'";
-        query += "order by ag.description, a.description";
+        query += " select ";
+        query += " ag.description 'group', a.description, vfa.value ";
+        query += " from attribute a ";
+        query += " inner join attribute_group ag on a.attribute_group_uuid=ag.uuid ";
+        query += " inner join attribute_group_feature agf on ag.uuid=agf.attribute_group_uuid ";
+        query += " inner join feature f on f.uuid=agf.feature_uuid and f.description='"+feature+"' ";
+        query += " left join "+feature+"_attribute vfa on vfa.attribute_uuid=a.uuid and vfa."+feature+"_uuid='"+uuid+"' ";
+        query += " order by ag.description, a.order ";
 
 
         conn.freeQuery(query).then(function(dataSet){
             if (dataSet.rows.length>0){
-                d.resolve(dataSet.rows);
+                var obj = {};
+                for (var x=0 ; x<dataSet.rows.length ; x++){
+                    if (!obj[dataSet.rows[x].group]){
+                        obj[dataSet.rows[x].group] = {};
+                    }
+                    obj[dataSet.rows[x].group][dataSet.rows[x].description] = dataSet.rows[x].value;
+                }
+                d.resolve(obj);
             }else{
                 d.resolve(null);
             }

@@ -150,6 +150,33 @@ module.exports = {
         }
 
         return d.promise;
+    },
+    getAllCompanies: function (user) {
+
+        var d = new q.defer();
+
+        var queryBuilder = "select company_uuid from user_company where user_uuid='"+user.uuid+"'";
+        conn.freeQuery(queryBuilder).then(function(dataSet){
+            var arr = [];
+            if (dataSet.rows.length >0){
+                var companyController = require("./global")("company");
+                var dataSetLength = dataSet.rows.length;
+                for (var x=0 ; x<dataSetLength ; x++){
+                    companyController.getOne(dataSet.rows[x].company_uuid).then(function(company){
+                        arr.push(company);
+                        if (arr.length==dataSetLength){
+                            d.resolve({data:arr});
+                        }
+                    });
+                }
+            }else{
+                d.resolve({data:arr});
+            }
+
+        });
+
+        return d.promise;
+
     }
 };
 
