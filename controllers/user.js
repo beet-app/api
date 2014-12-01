@@ -83,12 +83,12 @@ module.exports = {
                                 conn.freeExec("insert into user values ('"+user.uuid+"','"+user.email+"','"+user.password+"',0)").then(function(dataSet){
                                     //conn.freeExec("delete from user where email<>'admin'").then(function(dataSet){
 
-                                    /*common.sendMail({
-                                     "name":"LOGIN_VALIDATE",
-                                     "recipients":[user.email],
-                                     "params":{"uuid":user.uuid}
-                                     });
-                                     */
+                                    common.sendMail({
+                                        "name":"validate_user",
+                                        "recipients":user.email,
+                                        "params":{"uuid":user.uuid}
+                                    });
+
 
                                     d.resolve({result:dataSet.result, error:(dataSet.result.affectedRows>0) ? null : dataSet.error});
 

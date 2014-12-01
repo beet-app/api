@@ -2,18 +2,25 @@ var q = require("q");
 module.exports = {
     sendMail: function(mail){
 
-        //var emailController = require("../controllers/global")("email");
+        var emailController = require("../controllers/email");
 
 
-        emailController.getOne({description:mail.name}).then(function(dataSet){
+        emailController.getOne(mail.name).then(function(dataSet){
 
-            if (dataSet.params!==undefined){
-                for (var param in dataSet.params){
-                    dataSet.html = dataSet.html.replace("["+param+"]", dataSet.params[param]);
-                    dataSet.text = dataSet.text.replace("["+param+"]", dataSet.params[param]);
+            if (mail.params!==undefined){
+                for (var param in mail.params){
+                    dataSet.html = dataSet.html.replace("["+param+"]", mail.params[param]);
+                    dataSet.text = dataSet.html.replace("["+param+"]", mail.params[param]);
                 }
             }
 
+            if (typeof(mail.recipients)=="string"){
+                mail.recipients = [{
+                    "email": mail.recipients,
+                    "name": mail.recipients,
+                    "type": "to"
+                }];
+            }
             var mailData = {
                 "html": dataSet.html,
                 "text": dataSet.text,
@@ -21,7 +28,7 @@ module.exports = {
                 "recipients": mail.recipients
             };
 
-
+            console.log(mailData);
 
             var mailSender = require("./mail");
             mailSender.send(mailData);

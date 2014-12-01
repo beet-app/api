@@ -24,7 +24,14 @@ module.exports = function(app, passport) {
         }
     );
 
-    router.get('/loggedin', isLoggedIn, function (req, res) {
+
+
+    router.get('/logout', function(req, res) {
+        req.logout();
+        res.send(401);
+        //    res.redirect('/');
+    });
+    router.get('/login', isLoggedIn, function (req, res) {
         res.send(req.user);
     });
 
@@ -61,16 +68,19 @@ module.exports = function(app, passport) {
 
     });
 
+    router.post('/user/validate', isLoggedIn, function (req, res) {
+        var userController = require("./controllers/user");
 
+        console.log(req.user);
 
-//
-    //// =====================================
-    //// LOGOUT ==============================
-    //// =====================================
-    router.get('/logout', function(req, res) {
-        req.logout();
-        res.send(401);
-    //    res.redirect('/');
+        /*userController.validate(req.body).then(function(response){
+            if (response.error !== null){
+                res.json(401, response);
+            }else{
+                res.send(200);
+            }
+        });*/
+
     });
 
 

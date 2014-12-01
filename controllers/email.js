@@ -1,55 +1,23 @@
 var q = require("q");
-var conn = require('../conn');
-var bcrypt   = require('bcrypt-nodejs');
+var conn = require('../shared/conn');
+
 module.exports = {
-    validateEmail: function (email) {
+    getOne: function (description) {
 
         var d = new q.defer();
 
-        var queryBuilder = {
-            table:"user",
-            fields:["uuid","email","password"],
-            filters:[
-                {
-                    field:"email",
-                    value:email
-                }
-            ]
-        };
+        var query = "";
+        query += "SELECT ea.*,a.description from email_attribute ea inner join attribute a on a.uuid=ea.attribute_uuid where ea.email_uuid in ( select email_uuid from email_attribute where value='"+description+"')";
 
-        conn.query(queryBuilder).then(function(dataSet){
-            if (dataSet.rows.length>0){
-                d.resolve(dataSet.rows[0]);
-            }else{
-                d.resolve(null);
-            }
-        });
 
-        return d.promise;
-
-    },
-    validatePassword: function (password, reqpassword) {
-        var d = new q.defer();
-        d.resolve(bcrypt.compareSync(reqpassword, password));
-        return d.promise;
-    },
-    getOne: function (uuid) {
-
-        var d = new q.defer();
-
-        var queryBuilder = {
-            table:"user",
-            fields:["uuid,email"],
-            filters:[
-                {
-                    field:"uuid",
-                    value:uuid
-                }
-            ]
-        };
-        conn.query(queryBuilder).then(function(dataSet){
+        conn.freeQuery(query).then(function(dataSet){
             if (dataSet.rows.length >0){
-                d.resolve(dataSet.rows[0]);
+                var obj = {};
+                obj[dataSet.rows[0].description] = dataSet.rows[0].value;
+                obj[dataSet.rows[1].description] = dataSet.rows[1].value;
+                obj[dataSet.rows[2].description] = dataSet.rows[2].value;
+
+                d.resolve(obj);
             }else{
                 d.resolve(null);
             }

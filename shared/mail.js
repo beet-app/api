@@ -2,10 +2,7 @@
 module.exports = {
     send: function(mailData){
         var mandrill = require('mandrill-api/mandrill');
-
         var mailConfig = require('../config/mail');
-
-
         var message = {
             "html": mailData.html,
             "text": mailData.text,
