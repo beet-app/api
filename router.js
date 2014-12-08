@@ -14,16 +14,15 @@ module.exports = function(app, passport) {
             //res.redirect("http://127.0.0.1:9000/#/home");
         }
     );
-    router.get('/teste2',
+    router.get('/teste2/:feature',
         function (req, res) {
-            var ct = require("./controllers/attribute");
-            ct.getAttributeGroupByFeature("person").then(function(teste){
-
+            var ct = require("./controllers/global")(req.params.feature);
+            ct.getAttributeGroup().then(function(teste){
+                res.json(teste);
             });
             //res.redirect("http://127.0.0.1:9000/#/home");
         }
     );
-
 
 
     router.get('/logout', function(req, res) {

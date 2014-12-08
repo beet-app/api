@@ -53,6 +53,16 @@ module.exports = function(feature) {
             });
 
             return d.promise;
+        },
+        getAttributeGroup: function (){
+            var d = new q.defer();
+
+            var attributeController = require("./attribute");
+            attributeController.getAttributeGroupByFeature(feature).then(function(obj){
+                d.resolve(obj);
+            });
+
+            return d.promise;
         }
     }
 }
