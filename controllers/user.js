@@ -14,10 +14,6 @@ module.exports = {
                 {
                     field:"email",
                     value:email
-                },
-                {
-                    field:"active",
-                    value:'1'
                 }
             ]
         };
@@ -26,9 +22,12 @@ module.exports = {
 
         conn.query(queryBuilder).then(function(dataSet){
             if (dataSet.rows.length>0){
-                d.resolve(dataSet.rows[0]);
+
+
+
+              d.resolve(common.getResultObj(dataSet.rows[0]));
             }else{
-                d.resolve(null);
+              d.resolve(common.getErrorObj("invalid_credentials"));
             }
         });
 
@@ -37,28 +36,35 @@ module.exports = {
     },
     validatePassword: function (password, reqpassword) {
         var d = new q.defer();
-        d.resolve(bcrypt.compareSync(reqpassword, password));
+        if (bcrypt.compareSync(reqpassword, password)){
+          d.resolve(common.getResultObj(true));
+        }else{
+          d.resolve(common.getErrorObj("invalid_credentials"));
+        }
         return d.promise;
     },
-    getOne: function (uuid) {
+    getOne: function (search) {
 
         var d = new q.defer();
 
+        if (typeof(search)=="string"){
+          search = {field:"uuid",value:search};
+        }
+
         var queryBuilder = {
-            table:"user",
-            fields:["uuid,email"],
-            filters:[
-                {
-                    field:"uuid",
-                    value:uuid
-                }
-            ]
+          table: "user",
+          filters: search
         };
         conn.query(queryBuilder).then(function(dataSet){
             if (dataSet.rows.length >0){
-                d.resolve(dataSet.rows[0]);
+                var companyController = require("./company");
+                companyController.getByUser(dataSet.rows[0].uuid).then(function(companies){
+                  dataSet.rows[0].companies =companies;
+                  d.resolve(common.getResultObj(dataSet.rows[0]));
+                });
+
             }else{
-                d.resolve(null);
+              d.resolve(common.getErrorObj("not_found_user"));
             }
         });
 
@@ -89,9 +95,7 @@ module.exports = {
                                         "params":{"uuid":user.uuid}
                                     });
 
-
-                                    d.resolve({result:dataSet.result, error:(dataSet.result.affectedRows>0) ? null : dataSet.error});
-
+                                    d.resolve(common.getResultObj(dataSet.result));
                                 });
                             });
 
@@ -130,15 +134,7 @@ module.exports = {
                 if (blnExists){
                     var query = "update user set active=1 where uuid='"+user.uuid+"'";
                     conn.freeExec(query).then(function(dataSet){
-
-                        /*common.sendMail({
-                         "name":"LOGIN_VALIDATE",
-                         "recipients":[user.email],
-                         "params":{"uuid":user.uuid}
-                         });*/
-
-                        d.resolve({result:dataSet.result, error:(dataSet.result.affectedRows>0) ? null : dataSet.error});
-
+                        d.resolve(common.getResultObj(dataSet));
                     });
                 }else{
                     d.resolve(common.getErrorObj("not_found_user"));

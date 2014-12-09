@@ -1,113 +1,34 @@
-var objModel = require("../models/company");
+var q = require("q");
+var conn = require('../shared/conn');
 
 module.exports = {
+  getByUser: function (user_uuid) {
+    var d = new q.defer();
 
-    list: function (req, res) {
-        
+    var query = "select company_uuid from user_company where user_uuid='"+user_uuid+"'";
+    var obj = {};
+    var arr = [];
+    conn.freeQuery(query).then(function (dataSet) {
+      if (dataSet.rows.length > 0) {
 
-        objModel.find({"members.user":req.user._id}).populate('members.user').populate('members.profile').exec(function (err, company) {
-            if (err)
-                res.send(err)
+        for (var x = 0; x < dataSet.rows.length; x++) {
+          var companyController = require("./global")("company");
+          companyController.getOne(dataSet.rows[x].company_uuid).then(function(company){
+            arr.push(company);
+            if (dataSet.rows.length == arr.length){
+              d.resolve(arr);
+            }
 
-            objModel.populate(
-                company, 
-                {path: 'members.profile.menus', model: 'Menu'}, 
-                function (err, companyMenus) {
+          });
 
-                    objModel.populate(
-                        company, 
-                        {path: 'members.profile.menus.modules', model: 'Module'}, 
-                        function (err, data) {
+        }
+      } else {
+        d.resolve(null);
+      }
+    });
 
-                            if (data.length > 0){
-                                var arrCompanies = new Array(data.length);
-                                for (var x=0; x< data.length; x++){
-                                    if (data[x].members.length > 0){
-                                        for (var y=0; y<data[x].members.length; y++){
-                                            if (data[x].members[y].user._id.id == req.user._id.id){
-                                                arrCompanies[x] = new Object();
-                                                arrCompanies[x]._id = data[x]._id;
-                                                arrCompanies[x].description = data[x].description;
-                                                arrCompanies[x].attributes = data[x].attributes;
-                                                arrCompanies[x].profile = data[x].members[y].profile.description;
-                                                arrCompanies[x].menus = data[x].members[y].profile.menus;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-
-                        res.json(arrCompanies); // return all menus in JSON format
-                    });
-            });
-        });
-    },    
-
-    insert: function (req, res, next) {
-        var model = new objModel(req.body);
-        model.save(function (err) {
-            if (err)
-                res.send(err);
-
-            objModel.find(function (err, data) {
-                if (err)
-                    res.send(err)
-                res.json(data);
-            });
-            //req.flash('info','Usuário cadastrado com sucesso!');
-
-        });
-    },
-
-    findOne: function (req, res, next) {
-        objModel.findOne({_id:req.params.companyId}).populate('members.user').populate('members.profile').exec(function (err, data) {
-            if (err)
-                res.send(err)
-            res.json(data); // return all menus in JSON format
-        });
-    },
-
-    update: function (req, res, next) {
-        /*objModel.findById(req.params.personId, function(err, data) {
-
-            if (err)
-                res.send(err);
-
-            data.active = req.body.active;  // update the bears info
-
-            // save the bear
-            data.save(function(err) {
-                if (err)
-                    res.send(err);
-
-                res.send(200);
-            });
-
-        });
-*/
-
-        objModel.update({_id:req.params.companyId}, {$set:req.body}, {upsert: true}, function(err){
-            if (err)
-                res.send(err);
-
-            res.send(200);
-        });
-
-    },    
-
-    delete: function (req, res) {
-        objModel.remove({_id: req.params.id}, function (err) {
-            if (err)
-                res.send(err);
-
-            objModel.find(function (err, data) {
-                if (err)
-                    res.send(err)
-                res.json(data);
-            });
-        });
-    }
+    return d.promise;
+  }
 }
 
 

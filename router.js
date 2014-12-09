@@ -40,16 +40,20 @@ module.exports = function(app, passport) {
         }
     );
 
+  router.post('/login/validate', function (req, res) {
+    var userController = require("./controllers/user");
+    userController.validate(req.body).then(function(response){
+        res.json(response);
+    });
 
-    router.post('/signup', function (req, res) {
+  });
+
+
+  router.post('/signup', function (req, res) {
         var userController = require("./controllers/user");
 
         userController.save(req.body).then(function(response){
-            if (response.error !== null){
-                res.json(401, response);
-            }else{
-                res.send(200);
-            }
+          res.json(response);
         });
 
     });
@@ -146,7 +150,7 @@ module.exports = function(app, passport) {
 
 // route middleware to make sure
 function isLoggedIn(req, res, next) {
-  if (!req.isAuthenticated()) 
+  if (!req.isAuthenticated())
     res.send(401);
 else
     next();

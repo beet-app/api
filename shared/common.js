@@ -53,6 +53,10 @@ module.exports = {
         }
         obj.error.code = code;
         return obj;
+    },
+    getResultObj: function(obj){
+      var obj = {data:obj};
+      return obj;
     }
 
 

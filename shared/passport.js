@@ -3,7 +3,7 @@
 // load all the things we need
 var LocalStrategy   = require('passport-local').Strategy;
 
-var common   = require('./common');
+var Common   = require('./common');
 
 var userController = require('./../controllers/user');
 
@@ -18,7 +18,7 @@ module.exports = function(passport) {
 
     // used to serialize the user for the session
     passport.serializeUser(function(user, done) {
-        done(null, user.uuid);
+        done(null, user.data.uuid);
     });
 
     // used to deserialize the user
@@ -104,26 +104,26 @@ module.exports = function(passport) {
 
 
 
-        userController.validateEmail(email).then( function(user) {
-
+        userController.getOne([{field:"email",value:email}]).then( function(response) {
+            var user = response.data;
             // if there are any errors, return the error before anything else
-            if (user===null)
-                return done(null);
+            if (response.error!==undefined)
+                return done(response);
 
             // if the user is found but the password is wrong
-
-            userController.validatePassword(user.password, password).then( function(bln) {
-                if (!bln){
+            userController.validatePassword(user.password, password).then( function(response) {
+                if (response.error!==undefined){
                     //common.sendMail({ "name":"LOGIN_ATTEMPT","recipients":recipients});
 
-                    return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
+                    return done(response); // create the loginMessage and save it to session as flashdata
                 }
 
                 // all is well, return successful user
 
 
+                return done(null, Common.getResultObj(user));
 
-                return done(null, user);
+
             });
         });
 
