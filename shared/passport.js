@@ -23,10 +23,10 @@ module.exports = function(passport) {
 
     // used to deserialize the user
     passport.deserializeUser(function(uuid, done) {
-        userController.getOne(uuid).then(function(user) {
-            if (user===null)
+        userController.getOne(uuid).then(function(response) {
+            if (response.error!==undefined)
                 done(null);
-            done(null, user);
+            done(null, response.data);
         });
     });
 
@@ -90,21 +90,13 @@ module.exports = function(passport) {
 
 
     passport.use('local-login', new LocalStrategy({
-        // by default, local strategy uses username and password, we will override with email
         usernameField : 'email',
         passwordField : 'password',
-        passReqToCallback : true // allows us to pass back the entire request to the callback
+        passReqToCallback : true
     },
-    function(req, email, password, done) { // callback with email and password from our form
+    function(req, email, password, done) {
 
-        //var conString = "postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58";
-                           //postgres://bdeqxewfggybjt:J_toI-s6b0BPyFK6n3UFto8HZO@ec2-54-197-249-212.compute-1.amazonaws.com:5432/d1l0hv7prm6i58
-
-
-
-
-
-        userController.getOne([{field:"email",value:email}]).then( function(response) {
+        userController.getOne({field:"email",value:email}).then( function(response) {
             var user = response.data;
             // if there are any errors, return the error before anything else
             if (response.error!==undefined)
@@ -115,13 +107,27 @@ module.exports = function(passport) {
                 if (response.error!==undefined){
                     //common.sendMail({ "name":"LOGIN_ATTEMPT","recipients":recipients});
 
-                    return done(response); // create the loginMessage and save it to session as flashdata
+                    return done(response)
                 }
 
                 // all is well, return successful user
+                var companyController = require("../controllers/company");
+                companyController.getByUser(user.uuid).then( function(companyResponse) {
+                    if (companyResponse.error!==undefined){
+
+                        return done(companyResponse)
+                    }
+                    if (companyResponse.data.length > 0){
+                        user.companies = companyResponse.data;
+                    }else{
+                        user.companies = [];
+                    }
+
+                    return done(null, Common.getResultObj(user));
 
 
-                return done(null, Common.getResultObj(user));
+                });
+
 
 
             });

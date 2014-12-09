@@ -17,14 +17,8 @@ module.exports = {
                 }
             ]
         };
-
-
-
         conn.query(queryBuilder).then(function(dataSet){
             if (dataSet.rows.length>0){
-
-
-
               d.resolve(common.getResultObj(dataSet.rows[0]));
             }else{
               d.resolve(common.getErrorObj("invalid_credentials"));
@@ -57,14 +51,9 @@ module.exports = {
         };
         conn.query(queryBuilder).then(function(dataSet){
             if (dataSet.rows.length >0){
-                var companyController = require("./company");
-                companyController.getByUser(dataSet.rows[0].uuid).then(function(companies){
-                  dataSet.rows[0].companies =companies;
-                  d.resolve(common.getResultObj(dataSet.rows[0]));
-                });
-
+                d.resolve(common.getResultObj(dataSet.rows[0]));
             }else{
-              d.resolve(common.getErrorObj("not_found_user"));
+                d.resolve(common.getErrorObj("not_found_user"));
             }
         });
 

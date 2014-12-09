@@ -74,7 +74,58 @@ module.exports = {
             }
         });
         return d.promise;
-    }
+    },
+
+    getAttributeValueGroupByFeatureCollection: function (feature, arrCollection) {
+        var d = new q.defer();
+
+        strUuidFilter = "";
+        for (var x=0; x< arrCollection.length ; x++){
+            if (strUuidFilter==="") {
+                strUuidFilter+= "'" + arrCollection[x].uuid + "'";
+            }else{
+                strUuidFilter+= ",'" + arrCollection[x].uuid + "'";
+            }
+
+
+        }
+
+        var query = "";
+        query += " select ";
+        query += " vfa."+feature+"_uuid 'feature_uuid', ag.description 'group', a.description, vfa.value ";
+        query += " from attribute a ";
+        query += " inner join attribute_group ag on a.attribute_group_uuid=ag.uuid ";
+        query += " inner join attribute_group_feature agf on ag.uuid=agf.attribute_group_uuid ";
+        query += " inner join feature f on f.uuid=agf.feature_uuid and f.description='"+feature+"' ";
+        query += " left join "+feature+"_attribute vfa on vfa.attribute_uuid=a.uuid and vfa."+feature+"_uuid in ("+strUuidFilter+")";
+        query += " order by vfa."+feature+"_uuid,ag.description, a.order ";
+
+        var ct = -1;
+        var old_uuid = "";
+        conn.freeQuery(query).then(function(dataSet){
+            if (dataSet.rows.length>0){
+                for (var x=0 ; x<dataSet.rows.length ; x++){
+                    if (dataSet.rows[x].feature_uuid != old_uuid){
+                        ct++;
+                        old_uuid = dataSet.rows[x].feature_uuid;
+                    }
+                    if (!arrCollection[ct].attributes){
+                        arrCollection[ct].attributes = {};
+                    }
+                    if (!arrCollection[ct].attributes[dataSet.rows[x].group]){
+                        arrCollection[ct].attributes[dataSet.rows[x].group] = {};
+                    }
+                    arrCollection[ct].attributes[dataSet.rows[x].group][dataSet.rows[x].description] = dataSet.rows[x].value;
+                }
+
+                d.resolve(arrCollection);
+            }else{
+                d.resolve(null);
+            }
+        });
+        return d.promise;
+    },
+
 }
 
 

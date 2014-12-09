@@ -37,6 +37,41 @@ module.exports = function(feature) {
             return d.promise;
 
         },
+        getAllByUser: function (search) {
+
+            var d = new q.defer();
+
+            if (typeof(search)=="string"){
+                search = {field:"uuid",value:search};
+            }
+
+            var queryBuilder = {
+                table: feature,
+                filters: search
+            };
+            var arr = [];
+            var arrUuids = [];
+            conn.freeQuery("SELECT * FROM COMPANY WHERE uuid IN (select company_uuid from user_company where user_uuid='"+search.value+"') order by uuid").then(function (featureDataSet) {
+                if (featureDataSet.rows.length > 0) {
+                    /*
+                    for (var x = 0 ; x<featureDataSet.rows.length ; x++){
+                        arrUuids.push(featureDataSet.rows(x).uuid);
+                        arr.push(featureDataSet.rows(x).uuid);
+                    }
+                    var obj = featureDataSet.rows[0];
+                    */
+                    var attributeController = require("./attribute");
+                    attributeController.getAttributeValueGroupByFeatureCollection(feature, featureDataSet.rows).then(function(data){
+                        d.resolve(data);
+                    });
+                } else {
+                    d.resolve(null);
+                }
+            });
+
+            return d.promise;
+
+        },
         exists: function (search) {
             var d = new q.defer();
 
