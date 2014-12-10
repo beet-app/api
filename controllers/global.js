@@ -37,7 +37,7 @@ module.exports = function(feature) {
             return d.promise;
 
         },
-        getAllByUser: function (search) {
+        getAllByUserDEPRECATED: function (search) {
 
             var d = new q.defer();
 
@@ -98,6 +98,18 @@ module.exports = function(feature) {
             });
 
             return d.promise;
+        },
+        getAllByUser: function (user_uuid){
+          var d = new q.defer();
+
+          var attributeController = require("./attribute");
+          attributeController.getAttributeValueGroupByUserFeature(user_uuid, feature).then(function(obj){
+            d.resolve(obj);
+          });
+
+          return d.promise;
         }
+
+
     }
 }

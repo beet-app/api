@@ -7,7 +7,7 @@ module.exports = {
     var d = new q.defer();
 
     var companyController = require("./global")("company");
-    companyController.getAllByUser(user_uuid).then(function(companies){
+    companyController.getAllByUserDEPRECATED(user_uuid).then(function(companies){
       d.resolve(common.getResultObj(companies));
     });
 

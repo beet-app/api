@@ -1,5 +1,6 @@
 var q = require("q");
 var conn = require('../shared/conn');
+var common = require('../shared/common');
 var attributeTypeController = require('./attribute_type');
 module.exports = {
 
@@ -76,55 +77,103 @@ module.exports = {
         return d.promise;
     },
 
-    getAttributeValueGroupByFeatureCollection: function (feature, arrCollection) {
-        var d = new q.defer();
+  getAttributeValueGroupByFeatureCollection: function (feature, arrCollection) {
+    var d = new q.defer();
 
-        strUuidFilter = "";
-        for (var x=0; x< arrCollection.length ; x++){
-            if (strUuidFilter==="") {
-                strUuidFilter+= "'" + arrCollection[x].uuid + "'";
-            }else{
-                strUuidFilter+= ",'" + arrCollection[x].uuid + "'";
-            }
+    strUuidFilter = "";
+    for (var x=0; x< arrCollection.length ; x++){
+      if (strUuidFilter==="") {
+        strUuidFilter+= "'" + arrCollection[x].uuid + "'";
+      }else{
+        strUuidFilter+= ",'" + arrCollection[x].uuid + "'";
+      }
 
 
+    }
+
+    var query = "";
+    query += " select ";
+    query += " vfa."+feature+"_uuid 'feature_uuid', ag.description 'group', a.description, vfa.value ";
+    query += " from attribute a ";
+    query += " inner join attribute_group ag on a.attribute_group_uuid=ag.uuid ";
+    query += " inner join attribute_group_feature agf on ag.uuid=agf.attribute_group_uuid ";
+    query += " inner join feature f on f.uuid=agf.feature_uuid and f.description='"+feature+"' ";
+    query += " inner join "+feature+" feat on feat.uuid in ("+strUuidFilter+")";
+    query += " left join "+feature+"_attribute vfa on vfa.attribute_uuid=a.uuid";
+    query += " order by vfa."+feature+"_uuid,ag.description, a.order ";
+
+    var ct = -1;
+    var old_uuid = "";
+    conn.freeQuery(query).then(function(dataSet){
+      if (dataSet.rows.length>0){
+        for (var x=0 ; x<dataSet.rows.length ; x++){
+          if (dataSet.rows[x].feature_uuid != old_uuid){
+            ct++;
+            old_uuid = dataSet.rows[x].feature_uuid;
+            arrCollection[ct].attributes = {};
+          }
+          if (!arrCollection[ct].attributes[dataSet.rows[x].group]){
+            arrCollection[ct].attributes[dataSet.rows[x].group] = {};
+          }
+          arrCollection[ct].attributes[dataSet.rows[x].group][dataSet.rows[x].description] = dataSet.rows[x].value;
         }
 
-        var query = "";
-        query += " select ";
-        query += " vfa."+feature+"_uuid 'feature_uuid', ag.description 'group', a.description, vfa.value ";
-        query += " from attribute a ";
-        query += " inner join attribute_group ag on a.attribute_group_uuid=ag.uuid ";
-        query += " inner join attribute_group_feature agf on ag.uuid=agf.attribute_group_uuid ";
-        query += " inner join feature f on f.uuid=agf.feature_uuid and f.description='"+feature+"' ";
-        query += " left join "+feature+"_attribute vfa on vfa.attribute_uuid=a.uuid and vfa."+feature+"_uuid in ("+strUuidFilter+")";
-        query += " order by vfa."+feature+"_uuid,ag.description, a.order ";
+        d.resolve(arrCollection);
+      }else{
+        d.resolve(null);
+      }
+    });
+    return d.promise;
+  },
 
-        var ct = -1;
-        var old_uuid = "";
-        conn.freeQuery(query).then(function(dataSet){
-            if (dataSet.rows.length>0){
-                for (var x=0 ; x<dataSet.rows.length ; x++){
-                    if (dataSet.rows[x].feature_uuid != old_uuid){
-                        ct++;
-                        old_uuid = dataSet.rows[x].feature_uuid;
-                    }
-                    if (!arrCollection[ct].attributes){
-                        arrCollection[ct].attributes = {};
-                    }
-                    if (!arrCollection[ct].attributes[dataSet.rows[x].group]){
-                        arrCollection[ct].attributes[dataSet.rows[x].group] = {};
-                    }
-                    arrCollection[ct].attributes[dataSet.rows[x].group][dataSet.rows[x].description] = dataSet.rows[x].value;
-                }
+  getAttributeValueGroupByUserFeature: function (user_uuid, feature) {
+    var d = new q.defer();
 
-                d.resolve(arrCollection);
-            }else{
-                d.resolve(null);
-            }
-        });
-        return d.promise;
-    },
+    var query = "";
+    query += " select ";
+    query += " feat.*, ag.description 'attribute_group', a.description 'attribute_description', vfa.value 'attribute_value'";
+    query += " from attribute a ";
+    query += " inner join attribute_group ag on a.attribute_group_uuid=ag.uuid ";
+    query += " inner join attribute_group_feature agf on ag.uuid=agf.attribute_group_uuid ";
+    query += " inner join feature f on f.uuid=agf.feature_uuid and f.description='"+feature+"' ";
+    query += " inner join user_"+feature+" uf on uf.user_uuid = '"+user_uuid+"'";
+    query += " inner join "+feature+" feat on feat.uuid = uf."+feature+"_uuid";
+    query += " left join "+feature+"_attribute vfa on vfa.attribute_uuid=a.uuid and vfa."+feature+"_uuid=feat.uuid";
+    query += " order by feat.uuid,ag.description, a.order ";
+
+    var ct = -1;
+    var old_uuid = "";
+    var arr = [];
+    var group, description, value;
+    conn.freeQuery(query).then(function(dataSet){
+      if (dataSet.rows.length>0){
+        for (var x=0 ; x<dataSet.rows.length ; x++){
+          group = dataSet.rows[x].attribute_group;
+          description = dataSet.rows[x].attribute_description;
+          value = dataSet.rows[x].attribute_value;
+          if (dataSet.rows[x].uuid != old_uuid){
+            ct++;
+            old_uuid = dataSet.rows[x].uuid;
+            arr[ct] = dataSet.rows[x];
+            delete arr[ct].attribute_group;
+            delete arr[ct].attribute_description;
+            delete arr[ct].attribute_value;
+            arr[ct].attributes = {};
+          }
+          if (!arr[ct].attributes[group]){
+            arr[ct].attributes[group] = {};
+          }
+
+          arr[ct].attributes[group][description] = value;
+
+        }
+        d.resolve(common.getResultObj(arr));
+      }else{
+        d.resolve(null);
+      }
+    });
+    return d.promise;
+  }
 
 }
 

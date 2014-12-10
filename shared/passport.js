@@ -23,11 +23,11 @@ module.exports = function(passport) {
 
     // used to deserialize the user
     passport.deserializeUser(function(uuid, done) {
-        userController.getOne(uuid).then(function(response) {
-            if (response.error!==undefined)
+
+            if (uuid===undefined)
                 done(null);
-            done(null, response.data);
-        });
+            done(null, uuid);
+
     });
 
  	// =========================================================================
@@ -111,8 +111,11 @@ module.exports = function(passport) {
                 }
 
                 // all is well, return successful user
-                var companyController = require("../controllers/company");
-                companyController.getByUser(user.uuid).then( function(companyResponse) {
+                //var companyController = require("../controllers/company");
+              var companyController = require("../controllers/global")("company");
+
+              companyController.getAllByUser(user.uuid).then( function(companyResponse) {
+                //companyController.getByUser(user.uuid).then( function(companyResponse) {
                     if (companyResponse.error!==undefined){
 
                         return done(companyResponse)
