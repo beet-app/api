@@ -8,6 +8,7 @@ module.exports = {
 
     var companyController = require("./global")("company");
     companyController.getAllByUserDEPRECATED(user_uuid).then(function(companies){
+
       d.resolve(common.getResultObj(companies));
     });
 

@@ -115,6 +115,7 @@ module.exports = function(passport) {
               var companyController = require("../controllers/global")("company");
 
               companyController.getAllByUser(user.uuid).then( function(companyResponse) {
+
                 //companyController.getByUser(user.uuid).then( function(companyResponse) {
                     if (companyResponse.error!==undefined){
 

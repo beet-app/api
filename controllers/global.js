@@ -1,6 +1,7 @@
 var q = require("q");
 var conn = require('../shared/conn');
 var bcrypt   = require('bcrypt-nodejs');
+var common   = require('../shared/common');
 
 module.exports = function(feature) {
     return {
@@ -94,7 +95,7 @@ module.exports = function(feature) {
 
             var attributeController = require("./attribute");
             attributeController.getAttributeGroupByFeature(feature).then(function(obj){
-                d.resolve(obj);
+                d.resolve(common.getResultObj(obj.data));
             });
 
             return d.promise;
@@ -104,7 +105,7 @@ module.exports = function(feature) {
 
           var attributeController = require("./attribute");
           attributeController.getAttributeValueGroupByUserFeature(user_uuid, feature).then(function(obj){
-            d.resolve(obj);
+            d.resolve(common.getResultObj(obj.data));
           });
 
           return d.promise;

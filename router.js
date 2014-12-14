@@ -75,7 +75,7 @@ module.exports = function(app, passport) {
         var userController = require("./controllers/user");
 
         userController.getAllCompanies(req.user).then(function(response){
-            if (response.error !== null){
+            if (response.error !== undefined){
                 res.json(401, response);
             }else{
                 res.json(response);
@@ -83,6 +83,22 @@ module.exports = function(app, passport) {
         });
 
     });
+
+  router.get('/attribute/:feature', function (req, res) {
+    var feature = req.params.feature;
+
+    var globalController = require("./controllers/global")(feature);
+
+    globalController.getAttributeGroup().then(function(response){
+      console.log(response);
+      if (response.error !== undefined){
+        res.json(401, response);
+      }else{
+        res.json(response);
+      }
+    });
+
+  });
 
 
 

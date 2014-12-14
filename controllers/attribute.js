@@ -38,9 +38,9 @@ module.exports = {
                         }
                         obj[dataSet.rows[x].group].push(attr);
                     }
-                    d.resolve(obj);
+                  d.resolve(common.getResultObj(obj));
                 } else {
-                    d.resolve(null);
+                  d.resolve(common.getResultObj({}));
                 }
             });
         });
@@ -167,10 +167,9 @@ module.exports = {
           arr[ct].attributes[group][description] = value;
 
         }
-        d.resolve(common.getResultObj(arr));
-      }else{
-        d.resolve(null);
-      }
+
+
+      }d.resolve(common.getResultObj(arr));
     });
     return d.promise;
   }
