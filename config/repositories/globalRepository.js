@@ -5,9 +5,7 @@ var common   = require('../shared/common');
 var validate   = require('../shared/validate');
 
 module.exports = function(feature) {
-    var globalRepository = require("../repositories/globalRepository");
-
-    return {
+    var globalRepository = {
         getOne: function (search) {
 
             var d = new q.defer();
@@ -41,30 +39,86 @@ module.exports = function(feature) {
             return d.promise;
 
         },
-        save: function (data) {
+        saveAttributes: function (uuid, attributes) {
+
+          var d = new q.defer();
+          var value;
+          var sql = "";
+          var main = {};
+          for (var group in attributes){
+            for (var attribute in attributes[group]){
+              value = attributes[group][attribute];
+              sql += "INSERT INTO " + feature + "_attribute ("+feature+"_uuid, attribute_uuid, value) values ('"+uuid+"','"+attribute+"','"+value+"');";
+            }
+          }
+          conn.freeExec(sql).then(function(result){
+            d.resolve(result);
+          });
+
+          return d.promise;
+
+        },
+        saveRelative: function (uuid, relative) {
+
+          var d = new q.defer();
+          var value;
+          var sql = "";
+
+          for (var key in relative.values){
+            value = attributes[group][attribute];
+            sql += "INSERT INTO "+relative.table+" ("+feature+"_uuid, "+relative.index+") values ('"+uuid+"','"+relative.values[key]+"');";
+          }
+          conn.freeExec(sql).then(function(result){
+            d.resolve(result);
+          });
+
+          return d.promise;
+
+        },
+        save: function (obj) {
 
             var d = new q.defer();
-            var validateObj;
-            var arr = Common.turnToArray(data);
-            var ct = 0;
-            for(var key in arr){
+            var key;
+            var relative;
+            var aux = {};
+            var main = {};
+            for (key in obj){
+              if (common.isObject(obj[key])){
+                aux[key] = obj[key];
+              }else{
+                main = obj[key];
+              }
+            }
 
-                validateObj = validate.validate(arr[key]);
+            if (common.isEmpty(main.uuid)){
+              main.uuid = common.generateUUID();
+            }
 
-                if (common.isEmpty(validateObj.error)){
-                  globalRepository.save(arr[key]).then(function(result){
-                    ct++;
-                    if (ct==arr.length){
-                      d.resolve(result);
-                    }
+            conn.save(main).then(function(mainResult){
 
+              var ctAux = 0;
+              for (key in aux){
+                if (key==="attributes"){
+                  globalRepository.saveAttributes(main.uuid, aux[key]).then(function(resultAttributes){
+                    ctAux++;
                   });
                 }else{
-                  d.resolve(common.getErrorObj("invalid"));
-                  break;
+                  relative = {
+                    table:key,
+                    index:key.replace("_"+feature, "").replace(feature+"_", "")+"_uuid",
+                    values:aux[key]
+                  };
+                  globalRepository.saveRelative(main.uuid, relative).then(function(resultRelatives){
+                    ctAux++;
+                  });
                 }
+                if (ctAux==aux.length){
+                  d.resolve(mainResult);
+                }
+              }
 
-            }
+
+            });
 
             return d.promise;
 
@@ -109,4 +163,5 @@ module.exports = function(feature) {
 
 
     }
+    return module;
 }

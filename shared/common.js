@@ -1,4 +1,5 @@
 var q = require("q");
+var validator = require('validator');
 module.exports = {
     sendMail: function(mail){
 
@@ -57,8 +58,15 @@ module.exports = {
     getResultObj: function(obj){
       var obj = {data:obj};
       return obj;
+    },
+    turnToArray:function(obj){
+      if (!validator.isArray(obj)){
+        obj = [obj];
+      }
+      return obj;
+    },
+    isObject:function(obj){
+      return validator.isObject(obj);
     }
-
-
 
 };
