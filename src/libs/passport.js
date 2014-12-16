@@ -3,9 +3,9 @@
 // load all the things we need
 var LocalStrategy   = require('passport-local').Strategy;
 
-var Common   = require('./common');
+var common = require("../libs/common");
 
-var userController = require('./../controllers/user');
+var userController = common.getController('user');
 
 // expose this function to our app using module.exports
 module.exports = function(passport) {
@@ -110,9 +110,7 @@ module.exports = function(passport) {
                     return done(response)
                 }
 
-                // all is well, return successful user
-                //var companyController = require("../controllers/company");
-              var companyController = require("../controllers/global")("company");
+              var companyController = common.getController("global")("company");
 
               companyController.getAllByUser(user.uuid).then( function(companyResponse) {
 

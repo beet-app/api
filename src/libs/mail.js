@@ -1,8 +1,8 @@
-
+var common = require("../libs/common");
 module.exports = {
     send: function(mailData){
         var mandrill = require('mandrill-api/mandrill');
-        var mailConfig = require('../config/mail');
+        var mailConfig = common.getConfig('mail');
         var message = {
             "html": mailData.html,
             "text": mailData.text,

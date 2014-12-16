@@ -1,13 +1,12 @@
 var router = require("express").Router();
-var objCtrl = null;
-var strCtrl = "";
+var common = require("../libs/common");
 
 module.exports = function(app, passport) {
 
 
     router.get('/teste/:feature',
         function (req, res) {
-            var conn = require("./shared/conn");
+            var conn = common.getLib("conn");
             conn.freeQuery("select * from "+req.params.feature).then(function(dataSet){
                 res.json(dataSet.rows);
             });
@@ -16,7 +15,7 @@ module.exports = function(app, passport) {
     );
     router.get('/teste2/:feature',
         function (req, res) {
-            var ct = require("./controllers/global")(req.params.feature);
+            var ct = common.getController("global")(req.params.feature);
             ct.getAttributeGroup().then(function(teste){
                 res.json(teste);
             });
@@ -41,7 +40,7 @@ module.exports = function(app, passport) {
     );
 
   router.post('/login/validate', function (req, res) {
-    var userController = require("./controllers/user");
+    var userController = common.getController("user");
     userController.validate(req.body).then(function(response){
         res.json(response);
     });
@@ -50,7 +49,7 @@ module.exports = function(app, passport) {
 
 
   router.post('/signup', function (req, res) {
-        var userController = require("./controllers/user");
+        var userController = common.getController("user");
 
         userController.save(req.body).then(function(response){
           res.json(response);
@@ -59,7 +58,7 @@ module.exports = function(app, passport) {
     });
 
     router.post('/user/validate', function (req, res) {
-        var userController = require("./controllers/user");
+        var userController = common.getController("user");
 
         userController.validate(req.body).then(function(response){
             if (response.error !== null){
@@ -72,7 +71,7 @@ module.exports = function(app, passport) {
     });
 
     router.get('/user/company', isLoggedIn, function (req, res) {
-        var userController = require("./controllers/user");
+        var userController = common.getController("user");
 
         userController.getAllCompanies(req.user).then(function(response){
             if (response.error !== undefined){
@@ -84,10 +83,25 @@ module.exports = function(app, passport) {
 
     });
 
+
+    router.post('/company', function (req, res) {
+        var companyController = common.getController("global")("company");
+
+
+        companyController.save(req.body).then(function(response){
+            if (response.error !== null){
+                res.json(401, response);
+            }else{
+                res.send(200);
+            }
+        });
+
+    });
+
   router.get('/attribute/:feature', function (req, res) {
     var feature = req.params.feature;
 
-    var globalController = require("./controllers/global")(feature);
+    var globalController = common.getController("global")(feature);
 
     globalController.getAttributeGroup().then(function(response){
       console.log(response);

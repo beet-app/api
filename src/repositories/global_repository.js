@@ -1,11 +1,13 @@
 var q = require("q");
-var conn = require('../shared/conn');
+var common = require("../libs/common");
+var conn = common.getLib('conn');
 var bcrypt   = require('bcrypt-nodejs');
-var common   = require('../shared/common');
-var validate   = require('../shared/validate');
+
+var validate   = common.getLib('validate');
 
 module.exports = function(feature) {
-    var globalRepository = {
+    var schema = common.getLib('schema')(feature);
+    return {
         getOne: function (search) {
 
             var d = new q.defer();
@@ -24,7 +26,7 @@ module.exports = function(feature) {
 
                     var obj = featureDataSet.rows[0];
 
-                    var attributeController = require("./attribute");
+                    var attributeController = common.getController("attribute");
                     attributeController.getAttributeValueGroupByFeature(feature, obj.uuid).then(function(attributes){
                         if (attributes!==null){
                             obj.attributes = attributes;
@@ -39,25 +41,7 @@ module.exports = function(feature) {
             return d.promise;
 
         },
-        saveAttributes: function (uuid, attributes) {
 
-          var d = new q.defer();
-          var value;
-          var sql = "";
-          var main = {};
-          for (var group in attributes){
-            for (var attribute in attributes[group]){
-              value = attributes[group][attribute];
-              sql += "INSERT INTO " + feature + "_attribute ("+feature+"_uuid, attribute_uuid, value) values ('"+uuid+"','"+attribute+"','"+value+"');";
-            }
-          }
-          conn.freeExec(sql).then(function(result){
-            d.resolve(result);
-          });
-
-          return d.promise;
-
-        },
         saveRelative: function (uuid, relative) {
 
           var d = new q.defer();
@@ -78,45 +62,18 @@ module.exports = function(feature) {
         save: function (obj) {
 
             var d = new q.defer();
+
+
             var key;
             var relative;
             var aux = {};
             var main = {};
-            for (key in obj){
-              if (common.isObject(obj[key])){
-                aux[key] = obj[key];
-              }else{
-                main = obj[key];
-              }
-            }
 
-            if (common.isEmpty(main.uuid)){
-              main.uuid = common.generateUUID();
-            }
+            obj = schema.getSaveObj(obj);
 
-            conn.save(main).then(function(mainResult){
+            conn.save(obj).then(function(mainResult){
 
-              var ctAux = 0;
-              for (key in aux){
-                if (key==="attributes"){
-                  globalRepository.saveAttributes(main.uuid, aux[key]).then(function(resultAttributes){
-                    ctAux++;
-                  });
-                }else{
-                  relative = {
-                    table:key,
-                    index:key.replace("_"+feature, "").replace(feature+"_", "")+"_uuid",
-                    values:aux[key]
-                  };
-                  globalRepository.saveRelative(main.uuid, relative).then(function(resultRelatives){
-                    ctAux++;
-                  });
-                }
-                if (ctAux==aux.length){
-                  d.resolve(mainResult);
-                }
-              }
-
+                d.resolve(mainResult);
 
             });
 
@@ -143,7 +100,7 @@ module.exports = function(feature) {
         getAttributeGroup: function (){
             var d = new q.defer();
 
-            var attributeController = require("./attribute");
+            var attributeController = common.getController("attribute");
             attributeController.getAttributeGroupByFeature(feature).then(function(obj){
                 d.resolve(common.getResultObj(obj.data));
             });
@@ -153,7 +110,7 @@ module.exports = function(feature) {
         getAllByUser: function (user_uuid){
           var d = new q.defer();
 
-          var attributeController = require("./attribute");
+          var attributeController = common.getController("attribute");
           attributeController.getAttributeValueGroupByUserFeature(user_uuid, feature).then(function(obj){
             d.resolve(common.getResultObj(obj.data));
           });
@@ -163,5 +120,4 @@ module.exports = function(feature) {
 
 
     }
-    return module;
 }

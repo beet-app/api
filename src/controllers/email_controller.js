@@ -1,5 +1,5 @@
 var q = require("q");
-var conn = require('../shared/conn');
+var common = require("../libs/common");
 
 module.exports = {
     getOne: function (description) {

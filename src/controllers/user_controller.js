@@ -1,33 +1,8 @@
 var q = require("q");
-var conn = require('../shared/conn');
-var bcrypt   = require('bcrypt-nodejs');
-var common   = require('../shared/common');
+bcrypt   = require('bcrypt-nodejs');
+var common = require("../libs/common");
+var conn = common.getLib('conn');
 module.exports = {
-    validateEmail: function (email) {
-
-        var d = new q.defer();
-
-        var queryBuilder = {
-            table:"user",
-            fields:["uuid","email","password"],
-            filters:[
-                {
-                    field:"email",
-                    value:email
-                }
-            ]
-        };
-        conn.query(queryBuilder).then(function(dataSet){
-            if (dataSet.rows.length>0){
-              d.resolve(common.getResultObj(dataSet.rows[0]));
-            }else{
-              d.resolve(common.getErrorObj("invalid_credentials"));
-            }
-        });
-
-        return d.promise;
-
-    },
     validatePassword: function (password, reqpassword) {
         var d = new q.defer();
         if (bcrypt.compareSync(reqpassword, password)){
@@ -63,7 +38,7 @@ module.exports = {
     save: function (user) {
         var d = new q.defer();
 
-        var userController = require("./global")("user");
+        var userController = common.getController("global")("user");
 
         if (user.email !== undefined && user.password !== undefined){
 
@@ -115,7 +90,7 @@ module.exports = {
     validate: function (user) {
         var d = new q.defer();
 
-        var userController = require("./global")("user");
+        var userController = common.getController("global")("user");
 
         if (user.uuid !== undefined){
 
@@ -144,7 +119,7 @@ module.exports = {
         conn.freeQuery(queryBuilder).then(function(dataSet){
             var arr = [];
             if (dataSet.rows.length >0){
-                var companyController = require("./global")("company");
+                var companyController = common.getController("global")("company");
                 var dataSetLength = dataSet.rows.length;
                 for (var x=0 ; x<dataSetLength ; x++){
                     companyController.getOne(dataSet.rows[x].company_uuid).then(function(company){

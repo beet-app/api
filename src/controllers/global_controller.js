@@ -1,9 +1,13 @@
 var q = require("q");
-var conn = require('../shared/conn');
 var bcrypt   = require('bcrypt-nodejs');
-var common   = require('../shared/common');
+var common = require("../libs/common");
+var conn = common.getLib('conn');
+
+var validate   = common.getLib('validate');
 
 module.exports = function(feature) {
+    var globalRepository = common.getRepository("global")(feature);
+
     return {
         getOne: function (search) {
 
@@ -23,7 +27,7 @@ module.exports = function(feature) {
 
                     var obj = featureDataSet.rows[0];
 
-                    var attributeController = require("./attribute");
+                    var attributeController = common.getController("attribute");
                     attributeController.getAttributeValueGroupByFeature(feature, obj.uuid).then(function(attributes){
                         if (attributes!==null){
                             obj.attributes = attributes;
@@ -42,34 +46,29 @@ module.exports = function(feature) {
 
             var d = new q.defer();
 
-            var arr = Common.turnToArray(data);
 
+            var validateObj;
+            var arr = common.turnToArray(data);
+            var ct = 0;
             for(var key in arr){
-              arr
-            }
-            var queryBuilder = {
-                table: feature,
-                filters: search
-            };
-            var arr = [];
-            var arrUuids = [];
-            conn.freeQuery("SELECT * FROM COMPANY WHERE uuid IN (select company_uuid from user_company where user_uuid='"+search.value+"') order by uuid").then(function (featureDataSet) {
-                if (featureDataSet.rows.length > 0) {
-                    /*
-                    for (var x = 0 ; x<featureDataSet.rows.length ; x++){
-                        arrUuids.push(featureDataSet.rows(x).uuid);
-                        arr.push(featureDataSet.rows(x).uuid);
+
+                validateObj = validate.validate(arr[key]);
+
+                if (common.isEmpty(validateObj.error)){
+                  globalRepository.save(arr[key]).then(function(result){
+                    ct++;
+                    if (ct==arr.length){
+                      d.resolve(result);
                     }
-                    var obj = featureDataSet.rows[0];
-                    */
-                    var attributeController = require("./attribute");
-                    attributeController.getAttributeValueGroupByFeatureCollection(feature, featureDataSet.rows).then(function(data){
-                        d.resolve(data);
-                    });
-                } else {
-                    d.resolve(null);
+
+                  });
+                }else{
+                  d.resolve(common.getErrorObj("invalid"));
+                  break;
                 }
-            });
+
+            }
+
 
             return d.promise;
 
@@ -94,7 +93,7 @@ module.exports = function(feature) {
         getAttributeGroup: function (){
             var d = new q.defer();
 
-            var attributeController = require("./attribute");
+            var attributeController = common.getController("attribute");
             attributeController.getAttributeGroupByFeature(feature).then(function(obj){
                 d.resolve(common.getResultObj(obj.data));
             });
@@ -104,7 +103,7 @@ module.exports = function(feature) {
         getAllByUser: function (user_uuid){
           var d = new q.defer();
 
-          var attributeController = require("./attribute");
+          var attributeController = common.getController("attribute");
           attributeController.getAttributeValueGroupByUserFeature(user_uuid, feature).then(function(obj){
             d.resolve(common.getResultObj(obj.data));
           });

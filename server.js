@@ -11,13 +11,15 @@ var cors           = require('express-cors');
 
 var app = express();
 
-app.use(cors(require('./config/cors')));
+var common = require("./src/libs/common");
+
+app.use(cors(common.getConfig('cors')));
 
 
 var port = process.env.PORT || 1313; 		// set our port// load the config
 
 
-var database = require('./config/database');
+var database = common.getConfig('database');
 
 
 app.use(morgan('dev')); // log every request to the console
@@ -31,9 +33,9 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
-require('./shared/passport')(passport);
+common.getLib('passport')(passport);
 
-var router = require('./router')(app, passport);
+var router = require('./src/routes/main_route')(app, passport);
 
 app.use('/api', router);
 

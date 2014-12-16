@@ -1,5 +1,6 @@
 var q = require("q");
-var conn = require('../shared/conn');
+var common = require("../libs/common");
+var conn = common.getLib('conn');
 module.exports = {
     // use mongoose to get all menus in the database
     getAllAsDict: function () {

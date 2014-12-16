@@ -1,7 +1,7 @@
 var q = require("q");
-var conn = require('../shared/conn');
-var common = require('../shared/common');
-var attributeTypeController = require('./attribute_type');
+var common = require("../libs/common");
+var conn = common.getLib('conn');
+var attributeTypeController = common.getController('attribute_type');
 module.exports = {
 
     getAttributeGroupByFeature: function (feature) {
@@ -10,7 +10,7 @@ module.exports = {
 
             var query = "";
             query += " select";
-            query += " ag.description 'group', a.description, a.order, a.size, cast(a.required as signed) 'required',";
+            query += " ag.description 'group', a.uuid, a.description, a.order, a.size, cast(a.required as signed) 'required',";
             query += " a.attribute_type_uuid";
             query += " from attribute a";
             query += " inner join attribute_group ag on a.attribute_group_uuid=ag.uuid";
