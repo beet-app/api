@@ -124,8 +124,8 @@ module.exports = function(passport) {
                     }else{
                         user.companies = [];
                     }
-
-                    return done(null, Common.getResultObj(user));
+                    console.log(user);
+                    return done(null, common.getResultObj(user));
 
 
                 });

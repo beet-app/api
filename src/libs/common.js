@@ -77,6 +77,14 @@ module.exports = {
         }
         return false;
     },
+    isError:function(obj){
+        if (obj!=null){
+            if (!this.isEmpty(obj.error)){
+                return true;
+            }
+        }
+        return false;
+    },
     isEmpty:function(obj){
         return (obj==undefined || obj==null || obj=="");
     },
@@ -119,7 +127,6 @@ module.exports = {
         console.log("-------------------------------");
     },
     logQuery:function(query, result){
-        return;
         console.log("-------------------------------");
         console.log("-------------query-------------");
         console.log(query);

@@ -24,11 +24,11 @@ module.exports = {
           table: "user",
           filters: search
         };
-        conn.query(queryBuilder).then(function(dataSet){
-            if (dataSet.rows.length >0){
-                d.resolve(common.getResultObj(dataSet.rows[0]));
-            }else{
+        conn.find(queryBuilder).then(function(dataSet){
+            if (common.isError(dataSet)){
                 d.resolve(common.getErrorObj("not_found_user"));
+            }else{
+                d.resolve(common.getResultObj(dataSet.result.rows[0]));
             }
         });
 

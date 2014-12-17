@@ -63,12 +63,6 @@ module.exports = function(feature) {
 
             var d = new q.defer();
 
-
-            var key;
-            var relative;
-            var aux = {};
-            var main = {};
-
             obj = schema.getSaveObj(obj);
 
             conn.save(obj).then(function(mainResult){

@@ -46,14 +46,14 @@ var lib = {
                 if (!filters.operator){
                     filters.operator = "=";
                 }
-                value = connection.escape(filters.value);
+                value = driver.escape(filters.value);
                 where += (where == "") ? filters.field + filters.operator + value + "" : " AND " + filters.field + filters.operator + value + "";
             }else{
                 for (x = 0; x < filters.length; x++) {
                     if (!filters[x].operator){
                         filters[x].operator = "=";
                     }
-                    value = connection.escape(filters[x].value);
+                    value = driver.escape(filters[x].value);
                     where += (where == "") ? filters[x].field + filters[x].operator + value + "" : " AND " + filters[x].field + filters[x].operator + value + "";
                 }
             }
@@ -66,14 +66,9 @@ var lib = {
             query += " WHERE " + where;
         }
 
-        connection.query(query, function(err, rows, fields) {
-            d.resolve({
-                err:err,
-                rows:err===null ? rows : [],
-                fields:fields
-            });
+        lib.query(query).then(function(queryResult){
+            d.resolve(queryResult);
         });
-
 
         return d.promise;
 
@@ -127,28 +122,21 @@ var lib = {
     },
     getQueryReturnObject: function (error, rows, fields) {
         var obj = {};
-
-        if (!common.isEmpty(error)){
+        if (common.isError(error)){
             obj.error = error;
-        }
-        if (!common.isEmpty(rows) || !common.isEmpty(fields)){
+        }else{
             obj.result = {};
-            if (!common.isEmpty(rows)){
-                obj.result.rows = rows;
-            }
-            if (!common.isEmpty(fields)){
-                obj.result.fields = fields;
-            }
+            obj.result.rows = rows;
+            obj.result.fields = fields;
         }
         return obj;
     },
     getExecReturnObject: function (error, result) {
         var obj = {};
 
-        if (!common.isEmpty(error)){
+        if (common.isError(error)){
             obj.error = error;
-        }
-        if (!common.isEmpty(result)){
+        }else{
             obj.result = result;
         }
         return obj;
