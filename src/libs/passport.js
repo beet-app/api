@@ -116,7 +116,6 @@ module.exports = function(passport) {
 
                 //companyController.getByUser(user.uuid).then( function(companyResponse) {
                     if (companyResponse.error!==undefined){
-
                         return done(companyResponse)
                     }
                     if (companyResponse.data.length > 0){
@@ -124,7 +123,6 @@ module.exports = function(passport) {
                     }else{
                         user.companies = [];
                     }
-                    console.log(user);
                     return done(null, common.getResultObj(user));
 
 
