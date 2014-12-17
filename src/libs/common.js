@@ -102,6 +102,22 @@ module.exports = {
             console.log(obj);
         }
         console.log("-------------------------------");
+    },
+    log:function(log){
+        console.log("-------------------------------");
+        console.log("--------------log--------------");
+        console.log(log);
+        console.log("-------------------------------");
+    },
+    logQuery:function(query, result){
+        console.log("-------------------------------");
+        console.log("-------------query-------------");
+        console.log(query);
+        if (result){
+            console.log("-----------result------------");
+            console.log(result);
+        }
+        console.log("-------------------------------");
     }
 };
 
