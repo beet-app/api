@@ -87,12 +87,11 @@ module.exports = function(app, passport) {
     router.post('/company', function (req, res) {
         var companyController = common.getController("global")("company");
 
-
         companyController.save(req.body).then(function(response){
-            if (response.error !== null){
-                res.json(401, response);
-            }else{
+            if (common.isEmpty(response.error)){
                 res.send(200);
+            }else{
+                res.json(401, response);
             }
         });
 

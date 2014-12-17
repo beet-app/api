@@ -1,13 +1,28 @@
-var mysql = require('mysql');
 var q = require("q");
 var common = require("../libs/common");
-var config = common.getConfig('database');
+var driver = require("../libs/driver_mysql");
 
 var lib = {
-    query: function (queryBuilder) {
-        var connection = mysql.createConnection(config);
+    query: function (query) {
+        var d = new q.defer();
+        driver.query(query).then(function(data){
+            var obj = lib.getQueryReturnObject(data.error, data.rows, data.fields);
+            common.logQuery(query, obj);
+            d.resolve(obj);
+        });
+        return d.promise;
+    },
+    exec: function (query) {
+        var d = new q.defer();
+        driver.exec(query).then(function(data){
+            var obj = lib.getExecReturnObject(data.error, data.result);
+            common.logQuery(query, obj);
+            d.resolve(obj);
+        });
+        return d.promise;
+    },
+    find: function (queryBuilder) {
 
-        connection.connect();
 
         var x, value;
         var d = new q.defer();
@@ -51,11 +66,6 @@ var lib = {
             query += " WHERE " + where;
         }
 
-
-
-
-
-        common.log(query);
         connection.query(query, function(err, rows, fields) {
             d.resolve({
                 err:err,
@@ -64,78 +74,84 @@ var lib = {
             });
         });
 
-        connection.end();
-
-        return d.promise;
-
-
-
-
-    },
-    freeQuery: function (query) {
-        var d = new q.defer();
-
-        var connection = mysql.createConnection(config);
-        connection.connect();
-
-        var debug=true;
-
-        if (debug){
-            common.log(query);
-            d.resolve({
-                err:null,
-                rows:[],
-                fields:[]
-            });
-        }else{
-            connection.query(query, function(err, rows, fields) {
-                var obj = (err===null) ? rows : err;
-                common.logQuery(query, obj);
-                d.resolve({
-                    error:err,
-                    rows:err===null ? rows : [],
-                    fields:fields
-                });
-
-            });
-        }
-
-
-        connection.end();
 
         return d.promise;
 
     },
-    freeExec: function (query) {
+    save: function (obj) {
+
         var d = new q.defer();
 
-        var connection = mysql.createConnection(config);
-        connection.connect();
+        var parent = (obj.parent) ? obj.parent : obj;
 
+        lib.exists(parent).then(function(parentExists) {
+            if (common.isEmpty(parentExists.error)){
 
-        var debug=true;
+                var sql = (parentExists.result) ? lib.getUpdateSql(parent) : lib.getInsertSql(parent);
 
-        if (debug){
-            common.log(query);
-            d.resolve({
-                err:null,
-                result:[]
-            });
-        }else{
-            connection.query(query, function(err, result) {
-                var obj = (err===null) ? result : err;
-                common.logQuery(query, obj);
-                d.resolve({
-                    err:err,
-                    result:err===null ? result : []
+                lib.exec(sql).then(function(parentExec) {
+                    if (common.isEmpty(parentExec.error)){
+                        if (common.isEmpty(obj.children)){
+                            d.resolve(parentExec);
+                        }else{
+                            sql = "";
+                            for (var x = 0 ; x<obj.children.length ; x++){
+                                sql += lib.getDeleteBeforeInsertSql(obj.children[x])+lib.getInsertSql(obj.children[x]);
+                            }
+                            lib.exec(sql).then(function(noUseForWhile) {
+                                d.resolve(parentExec);
+                            });
+                        }
+                    }else{
+                        d.resolve(parentExec);
+                    }
                 });
-            });
-        }
-
-
-        connection.end();
+            }else{
+                d.resolve(parentExists);
+            }
+        });
 
         return d.promise;
+
+    },
+    exists: function (obj) {
+        var d = new q.defer();
+        lib.query(lib.getExistsSql(obj)).then(function(parentExists) {
+            if (common.isEmpty(parentExists.error)){
+                d.resolve({result:(parentExists.result.rows.length > 0)});
+            }else{
+                d.resolve(parentExists);
+            }
+        });
+        return d.promise;
+    },
+    getQueryReturnObject: function (error, rows, fields) {
+        var obj = {};
+
+        if (!common.isEmpty(error)){
+            obj.error = error;
+        }
+        if (!common.isEmpty(rows) || !common.isEmpty(fields)){
+            obj.result = {};
+            if (!common.isEmpty(rows)){
+                obj.result.rows = rows;
+            }
+            if (!common.isEmpty(fields)){
+                obj.result.fields = fields;
+            }
+        }
+        return obj;
+    },
+    getExecReturnObject: function (error, result) {
+        var obj = {};
+
+        if (!common.isEmpty(error)){
+            obj.error = error;
+        }
+        if (!common.isEmpty(result)){
+            obj.result = result;
+        }
+        return obj;
     },
     getInsertSql: function (obj) {
         var arr = common.turnToArray(obj.fields);
@@ -155,12 +171,14 @@ var lib = {
         var arr = common.turnToArray(obj.fields);
         var sql="";
         for (var x = 0 ; x < arr.length ; x++){
-            var fields = "1=1";
+            var fields = obj.indexes[0] + "=" + obj.indexes[0];
             var where = "";
-            for (key in arr[x]){
-                fields += ","+key+"='"+arr[x][key]+"'";
+            for (var key in arr[x]){
+                if (!common.inArray(key, obj.indexes)){
+                    fields += ","+key+"='"+arr[x][key]+"'";
+                }
             }
-            for (key in obj.indexes){
+            for (var key in obj.indexes){
                 where += (where=="") ? obj.indexes[key]+"='"+arr[x][obj.indexes[key]]+"'" : " AND "+obj.indexes[key]+"='"+arr[x][obj.indexes[key]]+"'";
             }
             sql +=  "UPDATE " + obj.table + " SET " + fields + " WHERE " + where + ";";
@@ -193,54 +211,6 @@ var lib = {
         }
         return sql;
     },
-    save: function (obj) {
-        var d = new q.defer();
-
-        var parent = (obj.parent) ? obj.parent : obj;
-
-        var sql = "";
-
-        lib.freeQuery(lib.getExistsSql(parent)).then(function(parentExists) {
-            if (parentExists.rows.length > 0){
-                sql = lib.getUpdateSql(parent);
-            }else{
-                sql = lib.getInsertSql(parent);
-            }
-            lib.freeExec(sql).then(function(result) {
-                if (common.isEmpty(result.error)){
-                    if (common.isEmpty(obj.children)){
-                        d.resolve({
-                            err:null,
-                            result:result
-                        });
-                    }else{
-                        var children;
-                        sql = "";
-                        for (var x = 0 ; x<obj.children.length ; x++){
-                            children = obj.children[x];
-                            sql += lib.getDeleteBeforeInsertSql(children)+lib.getInsertSql(children);
-                        }
-                        lib.freeExec(sql).then(function(childrenExists) {
-                            d.resolve({
-                                err:null,
-                                result:result
-                            });
-                        });
-                    }
-                }else{
-                    d.resolve({
-                        err:err,
-                        result:[]
-                    });
-                }
-
-            });
-
-        });
-
-        return d.promise;
-
-    }
 };
 
 module.exports = lib;

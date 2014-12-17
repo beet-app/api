@@ -46,29 +46,28 @@ module.exports = function(feature) {
 
             var d = new q.defer();
 
-
-            var validateObj;
             var arr = common.turnToArray(data);
             var ct = 0;
             for(var key in arr){
-
-                validateObj = validate.validate(arr[key]);
+                var validateObj = validate.validate(arr[key]);
 
                 if (common.isEmpty(validateObj.error)){
-                  globalRepository.save(arr[key]).then(function(result){
-                    ct++;
-                    if (ct==arr.length){
-                      d.resolve(result);
-                    }
-
-                  });
+                    globalRepository.save(arr[key]).then(function(saveResult){
+                        if (common.isEmpty(saveResult.error)){
+                            ct++;
+                            if (ct==arr.length){
+                                d.resolve(common.getSuccessObj());
+                            }
+                        }else{
+                            d.resolve(common.getErrorObj("invalid"));
+                        }
+                    });
                 }else{
-                  d.resolve(common.getErrorObj("invalid"));
-                  break;
+                    d.resolve(common.getErrorObj("invalid"));
+                    break;
                 }
 
             }
-
 
             return d.promise;
 

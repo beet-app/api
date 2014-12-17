@@ -51,6 +51,15 @@ module.exports = {
         var obj = {data:obj};
         return obj;
     },
+    getSuccessObj: function(){
+        return "OK";
+    },
+    inArray : function(value, arr) {
+        for(var i = 0; i < arr.length; i++) {
+            if(arr[i] == value) return true;
+        }
+        return false;
+    },
     turnToArray:function(obj){
         if (!this.isArray(obj)){
             obj = [obj];
@@ -110,6 +119,7 @@ module.exports = {
         console.log("-------------------------------");
     },
     logQuery:function(query, result){
+        return;
         console.log("-------------------------------");
         console.log("-------------query-------------");
         console.log(query);
