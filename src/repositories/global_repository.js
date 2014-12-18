@@ -41,24 +41,6 @@ module.exports = function(feature) {
             return d.promise;
 
         },
-
-        saveRelative: function (uuid, relative) {
-
-          var d = new q.defer();
-          var value;
-          var sql = "";
-
-          for (var key in relative.values){
-            value = attributes[group][attribute];
-            sql += "INSERT INTO "+relative.table+" ("+feature+"_uuid, "+relative.index+") values ('"+uuid+"','"+relative.values[key]+"');";
-          }
-          conn.freeExec(sql).then(function(result){
-            d.resolve(result);
-          });
-
-          return d.promise;
-
-        },
         save: function (obj) {
 
             var d = new q.defer();

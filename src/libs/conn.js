@@ -5,8 +5,11 @@ var driver = require("../libs/driver_mysql");
 var lib = {
     query: function (query) {
         var d = new q.defer();
+        /*
+            The return should be {error:???, rows:???, fields:???}
+         */
         driver.query(query).then(function(data){
-            var obj = lib.getQueryReturnObject(data.error, data.rows, data.fields);
+            var obj = lib.getQueryReturnObject(data);
             common.logQuery(query, obj);
             d.resolve(obj);
         });
@@ -14,8 +17,11 @@ var lib = {
     },
     exec: function (query) {
         var d = new q.defer();
+        /*
+         The return should be {error:???, result:???}
+         */
         driver.exec(query).then(function(data){
-            var obj = lib.getExecReturnObject(data.error, data.result);
+            var obj = lib.getExecReturnObject(data);
             common.logQuery(query, obj);
             d.resolve(obj);
         });
@@ -80,8 +86,9 @@ var lib = {
         var parent = (obj.parent) ? obj.parent : obj;
 
         lib.exists(parent).then(function(parentExists) {
-            if (common.isEmpty(parentExists.error)){
-
+            if (common.isError(parentExists)){
+                d.resolve(parentExists);
+            }else{
                 var sql = (parentExists.result) ? lib.getUpdateSql(parent) : lib.getInsertSql(parent);
 
                 lib.exec(sql).then(function(parentExec) {
@@ -101,8 +108,6 @@ var lib = {
                         d.resolve(parentExec);
                     }
                 });
-            }else{
-                d.resolve(parentExists);
             }
         });
 
@@ -112,32 +117,31 @@ var lib = {
     exists: function (obj) {
         var d = new q.defer();
         lib.query(lib.getExistsSql(obj)).then(function(parentExists) {
-            if (common.isEmpty(parentExists.error)){
-                d.resolve({result:(parentExists.result.rows.length > 0)});
-            }else{
+            if (common.isError(parentExists)){
                 d.resolve(parentExists);
+            }else{
+                d.resolve({result:(parentExists.rows.length > 0)});
             }
         });
         return d.promise;
     },
-    getQueryReturnObject: function (error, rows, fields) {
+    getQueryReturnObject: function (data) {
         var obj = {};
-        if (common.isError(error)){
-            obj.error = error;
+        if (common.isError(data)){
+            obj.error = data.error;
         }else{
-            obj.result = {};
-            obj.result.rows = rows;
-            obj.result.fields = fields;
+            obj.rows = data.rows;
+            obj.fields = data.fields;
         }
         return obj;
     },
-    getExecReturnObject: function (error, result) {
+    getExecReturnObject: function (data) {
         var obj = {};
 
-        if (common.isError(error)){
-            obj.error = error;
+        if (common.isError(data)){
+            obj.error = data.error;
         }else{
-            obj.result = result;
+            obj.result = data.result;
         }
         return obj;
     },
