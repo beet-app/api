@@ -1,5 +1,4 @@
 var q = require("q");
-var bcrypt   = require('bcrypt-nodejs');
 var common = require("../libs/common");
 var conn = common.getLib('conn');
 
@@ -22,17 +21,19 @@ module.exports = function(feature) {
                 filters: search
             };
 
-            conn.query(queryBuilder).then(function (featureDataSet) {
+            globalRepository.find(queryBuilder).then(function (featureDataSet) {
                 if (featureDataSet.rows.length > 0) {
 
                     var obj = featureDataSet.rows[0];
 
                     var attributeController = common.getController("attribute");
-                    attributeController.getAttributeValueGroupByFeature(feature, obj.uuid).then(function(attributes){
-                        if (attributes!==null){
-                            obj.attributes = attributes;
+                    attributeController.getAttributeValueGroupByFeature(feature, obj.uuid).then(function(attributesDataSet){
+                        if (common.isError(attributesDataSet)){
+                            d.resolve(common.getErrorObj(attributesDataSet));
+                        }else{
+                            obj.attributes = attributesDataSet.data;
                         }
-                        d.resolve(obj);
+                        d.resolve(common.getResultObj(obj));
                     });
                 } else {
                     d.resolve(null);
@@ -43,6 +44,7 @@ module.exports = function(feature) {
 
         },
         save: function (data) {
+            data = data.body;
 
             var d = new q.defer();
 
@@ -51,20 +53,20 @@ module.exports = function(feature) {
             for(var key in arr){
                 var validateObj = validate.validate(arr[key]);
 
-                if (common.isEmpty(validateObj.error)){
+                if (common.isError(validateObj)){
+                    d.resolve(common.getErrorObj("invalid"));
+                    break;
+                }else{
                     globalRepository.save(arr[key]).then(function(saveResult){
-                        if (common.isEmpty(saveResult.error)){
+                        if (common.isError(saveResult)){
+                            d.resolve(common.getErrorObj("save_" + feature));
+                        }else{
                             ct++;
                             if (ct==arr.length){
                                 d.resolve(common.getSuccessObj());
                             }
-                        }else{
-                            d.resolve(common.getErrorObj("invalid"));
                         }
                     });
-                }else{
-                    d.resolve(common.getErrorObj("invalid"));
-                    break;
                 }
 
             }
@@ -72,42 +74,53 @@ module.exports = function(feature) {
             return d.promise;
 
         },
-        exists: function (search) {
-            var d = new q.defer();
+        /*
+         exists: function (search) {
+         var d = new q.defer();
 
-            if (typeof(search)=="string"){
-                search = {field:"uuid",value:search};
-            }
+         if (typeof(search)=="string"){
+         search = {field:"uuid",value:search};
+         }
 
-            var queryBuilder = {
-                table: feature,
-                filters: search
-            };
-            conn.query(queryBuilder).then(function (featureDataSet) {
-                d.resolve(featureDataSet.rows.length > 0);
-            });
+         var queryBuilder = {
+         table: feature,
+         filters: search
+         };
+         conn.find(queryBuilder).then(function (featureDataSet) {
+         d.resolve(featureDataSet.rows.length > 0);
+         });
 
-            return d.promise;
-        },
+         return d.promise;
+         },
+         */
         getAttributeGroup: function (){
             var d = new q.defer();
 
             var attributeController = common.getController("attribute");
-            attributeController.getAttributeGroupByFeature(feature).then(function(obj){
-                d.resolve(common.getResultObj(obj.data));
+            attributeController.getAttributeGroupByFeature(feature).then(function(dataSet){
+                if (common.isError(dataSet)){
+                    d.resolve(common.getErrorObj("find_" + feature + "_attribute"));
+                }else{
+                    d.resolve(common.getResultObj(dataSet.rows));
+                }
             });
 
             return d.promise;
         },
         getAllByUser: function (user_uuid){
-          var d = new q.defer();
+            var d = new q.defer();
 
-          var attributeController = common.getController("attribute");
-          attributeController.getAttributeValueGroupByUserFeature(user_uuid, feature).then(function(obj){
-            d.resolve(common.getResultObj(obj.data));
-          });
+            var attributeController = common.getController("attribute");
+            attributeController.getAttributeValueGroupByUserFeature(user_uuid, feature).then(function(dataSet){
+                if (common.isError(dataSet)){
+                    d.resolve(common.getErrorObj("find_" + feature));
+                }else{
+                    d.resolve(common.getResultObj(dataSet.rows));
+                }
 
-          return d.promise;
+            });
+
+            return d.promise;
         }
 
 

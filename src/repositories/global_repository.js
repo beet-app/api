@@ -84,14 +84,14 @@ module.exports = function(feature) {
             return d.promise;
         },
         getAllByUser: function (user_uuid){
-          var d = new q.defer();
+            var d = new q.defer();
 
-          var attributeController = common.getController("attribute");
-          attributeController.getAttributeValueGroupByUserFeature(user_uuid, feature).then(function(obj){
-            d.resolve(common.getResultObj(obj.data));
-          });
+            var attributeController = common.getController("attribute");
+            attributeController.getAttributeValueGroupByUserFeature(user_uuid, feature).then(function(obj){
+                d.resolve(common.getResultObj(obj.data));
+            });
 
-          return d.promise;
+            return d.promise;
         }
 
 

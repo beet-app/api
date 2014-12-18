@@ -2,7 +2,6 @@ var q = require("q");
 bcrypt   = require('bcrypt-nodejs');
 var common = require("../libs/common");
 var conn = common.getLib('conn');
-var userRepository = common.getRepository('global')("user");
 module.exports = {
     validatePassword: function (password, reqpassword) {
         var d = new q.defer();
@@ -23,10 +22,9 @@ module.exports = {
 
         var queryBuilder = {
           table: "user",
-          //filters: search
-            filters:{field:"email",value:search.email}
+          filters: search
         };
-        userRepository.find(queryBuilder).then(function(dataSet){
+        conn.find(queryBuilder).then(function(dataSet){
             if (common.isError(dataSet)){
                 d.resolve(common.getErrorObj("not_found_user"));
             }else{

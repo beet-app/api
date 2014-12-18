@@ -85,10 +85,6 @@ module.exports = function(passport) {
     // we are using named strategies since we have one for login and one for signup
     // by default, if there was no name, it would just be called 'local'
 
-
-
-
-
     passport.use('local-login', new LocalStrategy({
         usernameField : 'email',
         passwordField : 'password',
@@ -96,38 +92,38 @@ module.exports = function(passport) {
     },
     function(req, email, password, done) {
 
-        userController.getOne({field:"email",value:email}).then( function(response) {
-            var user = response.data;
+        userController.getOne({email:email}).then( function(response) {
+
             // if there are any errors, return the error before anything else
-            if (response.error!==undefined)
+            if (common.isError(response)){
                 return done(response);
+            }else{
+                var user = response.data;
+            }
+            common.log(user);
 
             // if the user is found but the password is wrong
             userController.validatePassword(user.password, password).then( function(response) {
-                if (response.error!==undefined){
-                    //common.sendMail({ "name":"LOGIN_ATTEMPT","recipients":recipients});
+                if (common.isError(response)){
+                    return done(response);
+                }else{
 
-                    return done(response)
+                    var companyController = common.getController("global")("company");
+
+                    companyController.getAllByUser(user.uuid).then( function(companyResponse) {
+
+                        //companyController.getByUser(user.uuid).then( function(companyResponse) {
+                        if (common.isError(companyResponse)){
+                            return done(companyResponse)
+                        }else{
+                            user.companies = companyResponse.data;
+                        }
+
+                        return done(null, common.getResultObj(user));
+
+                    });
+
                 }
-
-              var companyController = common.getController("global")("company");
-
-              companyController.getAllByUser(user.uuid).then( function(companyResponse) {
-
-                //companyController.getByUser(user.uuid).then( function(companyResponse) {
-                    if (companyResponse.error!==undefined){
-                        return done(companyResponse)
-                    }
-                    if (companyResponse.data.length > 0){
-                        user.companies = companyResponse.data;
-                    }else{
-                        user.companies = [];
-                    }
-                    return done(null, common.getResultObj(user));
-
-
-                });
-
 
 
             });
