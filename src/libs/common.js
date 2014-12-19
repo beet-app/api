@@ -54,6 +54,14 @@ module.exports = {
     getSuccessObj: function(){
         return "OK";
     },
+    compareHash: function(uncrypted, crypted){
+        var bcrypt   = require('bcrypt-nodejs');
+        return (bcrypt.compareSync(uncrypted, crypted));
+    },
+    generateHash: function(value){
+        var bcrypt = require('bcrypt-nodejs');
+        return bcrypt.hashSync(value, bcrypt.genSaltSync(8), null);
+    },
     inArray : function(value, arr) {
         for(var i = 0; i < arr.length; i++) {
             if(arr[i] == value) return true;
@@ -88,6 +96,10 @@ module.exports = {
     isEmpty:function(obj){
         return (obj==undefined || obj==null || obj=="");
     },
+    isEmail:function(str){
+        var validator = require('validator');
+        return validator.isEmail(str);
+    },
     getFile:function(file){
         if (require(file)){
             return require(file);
@@ -99,16 +111,39 @@ module.exports = {
         return this.getFile("../schemas/"+file+"_schema");
     },
     getController:function(file){
-        return this.getFile("../controllers/"+file+"_controller");
+        var repository = this.getRepository(file);
+
+        var controller = this.getFile("../controllers/"+file+"_controller");
+        var globalController = this.getFile("../controllers/global_controller")(file, repository);
+        if (this.isEmpty(controller)){
+            controller = globalController;
+        }else{
+            controller = this.attach(controller(repository), globalController);
+        }
+        return controller;
+
     },
     getRepository:function(file){
-        return this.getFile("../repositories/"+file+"_repository");
+        var repository = this.getFile("../repositories/"+file+"_repository");
+        var globalRepository = this.getFile("../repositories/global_repository")(file);
+        if (this.isEmpty(repository)){
+            repository = globalRepository;
+        }else{
+            repository = this.attach(repository, globalRepository);
+        }
+        return repository;
     },
     getConfig:function(file){
         return this.getFile("../configs/"+file+"_config");
     },
     getLib:function(file){
         return this.getFile("../libs/"+file);
+    },
+    attach:function(mainObj, secondaryObj){
+        for (var key in mainObj){
+            secondaryObj[key] = mainObj[key];
+        }
+        return secondaryObj;
     },
     logError:function(error, obj){
         console.log("-------------------------------");

@@ -4,8 +4,8 @@ var conn = common.getLib('conn');
 
 var validate   = common.getLib('validate');
 
-module.exports = function(feature) {
-    var globalRepository = common.getRepository("global")(feature);
+module.exports = function(feature, repository) {
+    //var globalRepository = common.getRepository("global")(feature);
 
     return {
         getOne: function (search) {
