@@ -15,7 +15,6 @@ var lib = {
             var connection = mysql.createConnection(config);
 
             connection.connect();
-            common.log(query);
             connection.query(query, function(error, rows, fields) {
                 connection.end();
                 d.resolve({error:error, rows:rows, fields:fields});

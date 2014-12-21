@@ -68,7 +68,7 @@ module.exports = function(repository){
             var d = new q.defer();
 
             var queryBuilder = "select company_uuid from user_company where user_uuid='"+user.uuid+"'";
-            conn.freeQuery(queryBuilder).then(function(dataSet){
+            repository.freeQuery(queryBuilder).then(function(dataSet){
                 var arr = [];
                 if (dataSet.rows.length >0){
                     var companyController = common.getController("global")("company");

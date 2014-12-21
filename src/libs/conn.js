@@ -2,6 +2,8 @@ var q = require("q");
 var common = require("../libs/common");
 var driver = require("../libs/driver_mysql");
 
+var log = true;
+
 var lib = {
     query: function (query) {
         var d = new q.defer();
@@ -10,7 +12,9 @@ var lib = {
          */
         driver.query(query).then(function(data){
             var obj = lib.getQueryReturnObject(data);
-            common.logQuery(query, obj);
+            if (log){
+              common.logQuery(query, obj.rows);
+            }
             d.resolve(obj);
         });
         return d.promise;
@@ -22,7 +26,9 @@ var lib = {
          */
         driver.exec(query).then(function(data){
             var obj = lib.getExecReturnObject(data);
-            common.logQuery(query, obj);
+            if (log){
+              common.logQuery(query, obj);
+            }
             d.resolve(obj);
         });
         return d.promise;
@@ -203,6 +209,9 @@ var lib = {
         }
         return sql;
     },
+    getEmptyDataSet:function(){
+      return lib.getQueryReturnObject({rows:[],fields:[]});
+    }
 };
 
 module.exports = lib;

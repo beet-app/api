@@ -55,7 +55,7 @@ module.exports = {
         return "OK";
     },
     compareHash: function(uncrypted, crypted){
-        var bcrypt   = require('bcrypt-nodejs');
+        var bcrypt = require('bcrypt-nodejs');
         return (bcrypt.compareSync(uncrypted, crypted));
     },
     generateHash: function(value){
@@ -101,18 +101,19 @@ module.exports = {
         return validator.isEmail(str);
     },
     getFile:function(file){
-        if (require(file)){
-            return require(file);
+        var fs = require('fs');
+        if (fs.existsSync(file.replace("..","src")+".js")) {
+          return require(file);
         }else{
-            return null;
+          return null;
         }
     },
     getSchema:function(file){
         return this.getFile("../schemas/"+file+"_schema");
     },
     getController:function(file){
-        var repository = this.getRepository(file);
 
+        var repository = this.getRepository(file);
         var controller = this.getFile("../controllers/"+file+"_controller");
         var globalController = this.getFile("../controllers/global_controller")(file, repository);
         if (this.isEmpty(controller)){
@@ -126,6 +127,7 @@ module.exports = {
     getRepository:function(file){
         var repository = this.getFile("../repositories/"+file+"_repository");
         var globalRepository = this.getFile("../repositories/global_repository")(file);
+
         if (this.isEmpty(repository)){
             repository = globalRepository;
         }else{
