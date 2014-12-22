@@ -19,28 +19,16 @@ module.exports = function (app, passport) {
   });
 
   router.post('/login', passport.authenticate('local-login'),
-    function (req, res) {
-      res.json(req.user);
-    }
+      function (req, res) {
+        res.json(req.user);
+      }
   );
 
-  router.post('/login/validate', function (req, res) {
-    var userController = common.getController("user");
-    userController.validate(req).then(function (response) {
-      if (common.isError(response)) {
-        res.json(401, response);
-      } else {
-        res.send(200, response);
-      }
-    });
 
-  });
-
-
-  router.post('/signup', function (req, res) {
+  router.post('/signup', function (req, res) {l
     var userController = common.getController("user");
 
-    userController.save(req).then(function (response) {
+    userController.signUp(common.getRequestObj(req)).then(function (response) {
       if (common.isError(response)) {
         res.json(401, response);
       } else {
@@ -53,7 +41,7 @@ module.exports = function (app, passport) {
   router.post('/user/validate', function (req, res) {
     var userController = common.getController("user");
 
-    userController.validate(req).then(function (response) {
+    userController.validate(common.getRequestObj(req)).then(function (response) {
       if (common.isError(response)) {
         res.json(401, response);
       } else {
@@ -80,7 +68,31 @@ module.exports = function (app, passport) {
     router.post("/" + feature, function (req, res) {
       var globalController = common.getController(feature);
 
-      globalController.save(req).then(function (response) {
+      globalController.save(common.getRequestObj(req)).then(function (response) {
+        if (common.isError(response)) {
+          res.json(401, response);
+        } else {
+          res.send(200, response);
+        }
+      });
+
+    });
+    router.post("/" + feature + "/create", isLoggedIn, function (req, res) {
+      var globalController = common.getController(feature);
+
+      globalController.save(common.getRequestObj(req), "create").then(function (response) {
+        if (common.isError(response)) {
+          res.json(401, response);
+        } else {
+          res.send(200, response);
+        }
+      });
+
+    });
+    router.post("/" + feature  + "/update", function (req, res) {
+      var globalController = common.getController(feature);
+
+      globalController.save(common.getRequestObj(req), "update").then(function (response) {
         if (common.isError(response)) {
           res.json(401, response);
         } else {
@@ -92,7 +104,7 @@ module.exports = function (app, passport) {
     router.get("/" + feature, function (req, res) {
       var globalController = common.getController(feature);
 
-      globalController.find(req).then(function (response) {
+      globalController.find(common.getRequestObj(req)).then(function (response) {
         if (common.isError(response)) {
           res.json(401, response);
         } else {
@@ -104,7 +116,7 @@ module.exports = function (app, passport) {
     router.delete("/" + feature, function (req, res) {
       var globalController = common.getController(feature);
 
-      globalController.delete(req).then(function (response) {
+      globalController.delete(common.getRequestObj(req)).then(function (response) {
         if (common.isError(response)) {
           res.json(401, response);
         } else {
@@ -140,7 +152,7 @@ module.exports = function (app, passport) {
   router.get('/user/company', isLoggedIn, function (req, res) {
     var userController = common.getController("user");
 
-    userController.getAllCompanies(req).then(function (response) {
+    userController.getAllCompanies(common.getRequestObj(req)).then(function (response) {
       if (common.isError(response)) {
         res.json(401, response);
       } else {
@@ -152,22 +164,22 @@ module.exports = function (app, passport) {
 
 
   router.get('/teste/:feature',
-    function (req, res) {
-      var conn = common.getLib("conn");
-      conn.query("select * from " + req.params.feature).then(function (dataSet) {
-        res.json(dataSet.rows);
-      });
-      //res.redirect("http://127.0.0.1:9000/#/home");
-    }
+      function (req, res) {
+        var conn = common.getLib("conn");
+        conn.query("select * from " + req.params.feature).then(function (dataSet) {
+          res.json(dataSet.rows);
+        });
+        //res.redirect("http://127.0.0.1:9000/#/home");
+      }
   );
   router.get('/teste2/:feature',
-    function (req, res) {
-      var ct = common.getController(req.params.feature);
-      ct.getAttributeGroup().then(function (teste) {
-        res.json(teste);
-      });
-      //res.redirect("http://127.0.0.1:9000/#/home");
-    }
+      function (req, res) {
+        var ct = common.getController(req.params.feature);
+        ct.getAttributeGroup().then(function (teste) {
+          res.json(teste);
+        });
+        //res.redirect("http://127.0.0.1:9000/#/home");
+      }
   );
 
 
@@ -177,7 +189,7 @@ module.exports = function (app, passport) {
 // route middleware to make sure
 function isLoggedIn(req, res, next) {
   if (!req.isAuthenticated())
-    res.send(401);
+    res.json(common.getErrorObj("unauthorized"));
   else
     next();
 }

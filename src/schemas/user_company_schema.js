@@ -1,12 +1,14 @@
 var schema = {
-    company:{
-        table: "company"
-    },
-    user:{
-        table: "user"
-    },
-    profile:{
-        table: "profile"
+    fields:{
+        company:{
+            table: "company"
+        },
+        user:{
+            table: "user"
+        },
+        profile:{
+            table: "profile"
+        }
     }
 };
 module.exports = schema;

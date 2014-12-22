@@ -10,7 +10,6 @@ module.exports = function(feature) {
         getOne: function (search) {
             var d = new q.defer();
 
-
             conn.find(search).then(function (featureDataSet) {
                 d.resolve(featureDataSet);
             });
@@ -18,13 +17,16 @@ module.exports = function(feature) {
             return d.promise;
 
         },
-        save: function (obj) {
+        save: function (obj, mode) {
 
             var d = new q.defer();
 
+            mode = common.isEmpty(mode) ? "save" : mode;
+
+
             obj = schema.getSaveObj(obj);
 
-            conn.save(obj).then(function(mainResult){
+            conn.save(obj, mode).then(function(mainResult){
 
                 d.resolve(mainResult);
 

@@ -85,9 +85,11 @@ var lib = {
         return d.promise;
 
     },
-    save: function (obj) {
+    save: function (obj, mode) {
 
         var d = new q.defer();
+
+        mode = (common.isEmpty(mode)) ? "save" : mode.toLowerCase();
 
         var parent = (obj.parent) ? obj.parent : obj;
 
@@ -95,27 +97,48 @@ var lib = {
             if (common.isError(parentExists)){
                 d.resolve(parentExists);
             }else{
-                var sql = (parentExists.result) ? lib.getUpdateSql(parent) : lib.getInsertSql(parent);
-
-                lib.exec(sql).then(function(parentExec) {
-                    if (common.isEmpty(parentExec.error)){
-                        if (common.isEmpty(obj.children)){
-                            d.resolve(parentExec);
-                        }else{
-                            sql = "";
-                            for (var x = 0 ; x<obj.children.length ; x++){
-                                sql += lib.getDeleteBeforeInsertSql(obj.children[x])+lib.getInsertSql(obj.children[x]);
-                            }
-                            lib.exec(sql).then(function(noUseForWhile) {
+                if (parentExists.result && mode=="create"){
+                    d.resolve({error:"already_exists"});
+                }else if(!(parentExists.result) && mode=="update"){
+                    d.resolve({error:"inexistent"});
+                }else{
+                    var sql = (parentExists.result) ? lib.getUpdateSql(parent) : lib.getInsertSql(parent);
+                    lib.exec(sql).then(function(parentExec) {
+                        if (common.isEmpty(parentExec.error)){
+                            if (common.isEmpty(obj.children)){
                                 d.resolve(parentExec);
-                            });
+                            }else{
+                                lib.saveChildren(obj.children).then(function(childrenExec){
+                                    if (common.isEmpty(childrenExec)){
+                                        d.resolve(childrenExec);
+                                    }else{
+                                        d.resolve(childrenExec);
+                                    }
+                                });
+                            }
+                        }else{
+                            d.resolve(parentExec);
                         }
-                    }else{
-                        d.resolve(parentExec);
-                    }
-                });
+                    });
+                }
             }
         });
+
+        return d.promise;
+
+    },
+    saveChildren: function (children) {
+
+        var d = new q.defer();
+
+        var sql = "";
+        for (var x = 0 ; x<children.length ; x++){
+            sql += lib.getDeleteBeforeInsertSql(children[x])+lib.getInsertSql(children[x]);
+        }
+        lib.exec(sql).then(function(childrenExec) {
+            d.resolve(childrenExec);
+        });
+
 
         return d.promise;
 

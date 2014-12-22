@@ -82,11 +82,11 @@ module.exports = function(feature){
             var x;
             var schema = common.getSchema(feature);
 
-            if (!common.isEmpty(schema.uuid) && common.isEmpty(obj.uuid)){
+            if (!common.isEmpty(schema.fields.uuid) && common.isEmpty(obj.uuid)){
                 obj.uuid = this.generateUUID();
             }
-
-            var obj = this.merge(obj, schema);
+            common.log(obj);
+            var obj = this.merge(obj, schema.fields);
 
             var parent = {table:feature,fields:{}};
             var children = [];
@@ -98,13 +98,14 @@ module.exports = function(feature){
             }
 
             var arrIndexes;
+
             for (key in obj){
                 if (typeof(obj[key])=="object"){
-                    arrIndexes = schema[key].table.split("_");
+                    arrIndexes = schema.fields[key].table.split("_");
                     for (var x=0 ; x<arrIndexes.length ; x++){
                         arrIndexes[x] = arrIndexes[x] + "_uuid";
                     }
-                    children.push({table:schema[key].table,indexes:arrIndexes,fields:obj[key]});
+                    children.push({table:schema.fields[key].table,indexes:arrIndexes,fields:obj[key]});
                 }else{
                     parent.fields[key] = obj[key];
                 }
@@ -138,7 +139,7 @@ module.exports = function(feature){
                             if (key=="attribute"){
                                 childrenSchema="attribute";
                             }else{
-                                childrenSchema = common.getSchema(featureSchema[key].table);
+                                childrenSchema = common.getSchema(featureSchema[key].table).fields;
                             }
 
 

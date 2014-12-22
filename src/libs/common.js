@@ -1,38 +1,43 @@
 var q = require("q");
 var validator = require('validator');
-module.exports = {
+var lib = {
     sendMail: function(mail){
 
-        var emailController = require("../controllers/email_controller");
+        var emailController = this.getController("email");
 
 
-        emailController.getOne(mail.name).then(function(dataSet){
-
-            if (mail.params!==undefined){
-                for (var param in mail.params){
-                    dataSet.html = dataSet.html.replace("["+param+"]", mail.params[param]);
-                    dataSet.text = dataSet.html.replace("["+param+"]", mail.params[param]);
+        emailController.getOne({field:"description",value:mail.name}).then(function(dataSet){
+            if (lib.isError(dataSet)){
+                lib.log(dataSet);
+            }else{
+                dataSet = dataSet.data.attributes.email_data;
+                if (mail.params!==undefined){
+                    for (var param in mail.params){
+                        dataSet.html = dataSet.html.replace("["+param+"]", mail.params[param]);
+                        dataSet.text = dataSet.html.replace("["+param+"]", mail.params[param]);
+                    }
                 }
+
+                if (typeof(mail.recipients)=="string"){
+                    mail.recipients = [{
+                        "email": mail.recipients,
+                        "name": mail.recipients,
+                        "type": "to"
+                    }];
+                }
+                var mailData = {
+                    "html": dataSet.html,
+                    "text": dataSet.text,
+                    "subject": dataSet.subject,
+                    "recipients": mail.recipients
+                };
+
+                lib.log(mailData);
+
+                var mailSender = require("./mail");
+                mailSender.send(mailData);
             }
 
-            if (typeof(mail.recipients)=="string"){
-                mail.recipients = [{
-                    "email": mail.recipients,
-                    "name": mail.recipients,
-                    "type": "to"
-                }];
-            }
-            var mailData = {
-                "html": dataSet.html,
-                "text": dataSet.text,
-                "subject": dataSet.subject,
-                "recipients": mail.recipients
-            };
-
-            console.log(mailData);
-
-            var mailSender = require("./mail");
-            mailSender.send(mailData);
         });
     },
     getErrorObj: function(strError, code){
@@ -99,6 +104,20 @@ module.exports = {
     isEmail:function(str){
         var validator = require('validator');
         return validator.isEmail(str);
+    },
+    getRequestObj:function(req){
+        var request = {};
+        if (!this.isEmpty(req.body)){
+            request.data = req.body;
+        }
+        //if (!this.isEmpty(req.params)){
+        //    request.data = req.params;
+        //}
+        if (!this.isEmpty(req.user)){
+            request.user = req.user;
+        }
+
+        return request;
     },
     getFile:function(file){
         var fs = require('fs');
@@ -175,3 +194,4 @@ module.exports = {
     }
 };
 
+module.exports = lib;

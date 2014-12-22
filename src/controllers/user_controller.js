@@ -3,27 +3,49 @@ var common = require("../libs/common");
 
 module.exports = function(repository){
     return {
-        save: function (user) {
+        signUp: function (request) {
             var d = new q.defer();
+            var data = request.data;
+            if (data.email !== undefined && data.password !== undefined){
 
-            if (user.email !== undefined && user.password !== undefined){
+                if (common.isEmail(data.email)){
 
-                if (common.isEmail(user.email)){
+                    this.getOne({field:"email",value:data.email}).then(function(userExists){
+                        var userController = common.getController("user");
 
-                    repository.insert({field:"email",value:user.email}).then(function(blnExists){
-                        if (!blnExists){
-                            common.sendMail({
-                                "name":"validate_user",
-                                "recipients":user.email,
-                                "params":{"uuid":user.uuid}
+                        if (common.isError(userExists)){
+                            data.password = common.generateHash(data.password);
+                            userController.save(data, "create").then(function(createResult){
+                                if (common.isError(createResult)){
+                                    d.resolve(createResult);
+                                }else{
+                                    userController.getOne({field:"email",value:data.email}).then(function(userResponse){
+                                        if (common.isError(userResponse)){
+                                            d.resolve(common.getErrorObj("create_user"));
+                                        }else{
+
+                                            var user = userResponse.data;
+                                            common.sendMail({
+                                                "name":"validate_user",
+                                                "recipients":user.email,
+                                                "params":{"uuid":user.uuid}
+                                            });
+                                            d.resolve(common.getSuccessObj());
+                                        }
+
+                                    });
+
+                                }
                             });
 
-                            d.resolve(common.getResultObj(dataSet.result));
 
                         }else{
                             d.resolve(common.getErrorObj("user_exists"));
+
                         }
+
                     });
+
                 }else{
                     d.resolve(common.getErrorObj("invalid_email"));
                 }
@@ -35,17 +57,17 @@ module.exports = function(repository){
 
             return d.promise;
         },
-        validate: function (user) {
+        validate: function (request) {
             var d = new q.defer();
-
-            if (user.uuid !== undefined){
-                user.active = "1";
-                repository.update(user).then(function(result){
+            if (request.data.uuid !== undefined){
+                request.data.active = 1;
+                this.save(request, "update").then(function(result){
                     if (common.isError(result)){
-                        d.resolve(common.getErrorObj("not_found_user"));
+                        d.resolve(common.getErrorObj("validate_user"));
                     }else{
-                        d.resolve(common.getResultObj(result));
+                        d.resolve(common.getSuccessObj());
                     }
+
                 });
             }else{
                 d.resolve(common.getErrorObj("missing_params"));

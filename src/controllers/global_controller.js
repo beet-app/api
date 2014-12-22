@@ -1,6 +1,5 @@
 var q = require("q");
 var common = require("../libs/common");
-var conn = common.getLib('conn');
 
 var validate   = common.getLib('validate');
 
@@ -9,7 +8,6 @@ module.exports = function(feature, repository) {
 
     return {
         getOne: function (search) {
-
             var d = new q.defer();
 
             if (typeof(search)=="string"){
@@ -43,38 +41,44 @@ module.exports = function(feature, repository) {
             return d.promise;
 
         },
-        save: function (data) {
-          var d = new q.defer();
-            this.interceptor("save", data.body).then(function(data){
+        save: function (request, mode) {
+            var d = new q.defer();
 
-              var arr = common.turnToArray(data);
-              var ct = 0;
-              for(var key in arr){
-                var validateObj = validate.validate(arr[key]);
+            mode = common.isEmpty(mode) ? "save" : mode;
 
-                if (common.isError(validateObj)){
-                  d.resolve(common.getErrorObj("invalid"));
-                  break;
+            this.interceptor(mode, request).then(function(request){
+                if (common.isError(request)){
+                    d.resolve(request);
                 }else{
-                  repository.save(arr[key]).then(function(saveResult){
-                    if (common.isError(saveResult)){
-                      d.resolve(common.getErrorObj("save_" + feature));
-                    }else{
-                      ct++;
-                      if (ct==arr.length){
-                        d.resolve(common.getSuccessObj());
-                      }
+                    var data = request.data;
+                    var arr = common.turnToArray(data);
+                    var ct = 0;
+                    for(var key in arr){
+                        var validateObj = validate.validate(arr[key]);
+
+                        if (common.isError(validateObj)){
+                            d.resolve(common.getErrorObj("invalid"));
+                            break;
+                        }else{
+
+                            repository.save(arr[key], mode).then(function(saveResult){
+                                if (common.isError(saveResult)){
+                                    d.resolve(common.getErrorObj(mode + "_" + feature));
+                                }else{
+                                    ct++;
+                                    if (ct==arr.length){
+                                        d.resolve(common.getSuccessObj());
+                                    }
+                                }
+                            });
+
+                        }
+
                     }
-                  });
                 }
-
-              }
-
-
-
             });
 
-          return d.promise;
+            return d.promise;
 
 
 
@@ -99,18 +103,18 @@ module.exports = function(feature, repository) {
          },
          */
         interceptor: function (interceptor, data){
-          var d = new q.defer();
+            var d = new q.defer();
+            interceptor += "_interceptor";
+            if (common.isEmpty(this[interceptor])){
+                d.resolve(data);
+            }else{
+                this[interceptor](data).then(function(interceptedData){
+                    //common.log(interceptedData);
+                    d.resolve(interceptedData);
+                });
+            }
 
-          if (common.isEmpty(this[interceptor])){
-            d.resolve(data);
-          }else{
-            this[interceptor+"_interceptor"](data).then(function(interceptedData){
-              //common.log(interceptedData);
-              d.resolve(interceptedData);
-            });
-          }
-
-          return d.promise;
+            return d.promise;
         },
         getAttributeGroup: function (){
             var d = new q.defer();
