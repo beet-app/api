@@ -41,6 +41,26 @@ module.exports = function(feature, repository) {
             return d.promise;
 
         },
+        find: function (request) {
+            var d = new q.defer();
+
+            var data = request.data;
+
+            if (typeof(data)=="string"){
+                data = {uuid:data};
+            }
+
+            repository.find(data).then(function (featureDataSet) {
+                if (common.isError(featureDataSet)){
+                    d.resolve(common.getErrorObj("find_"+feature));
+                }else{
+                    d.resolve(common.getResultObj(featureDataSet.rows));
+                }
+            });
+
+            return d.promise;
+
+        },
         save: function (request, mode) {
             var d = new q.defer();
 

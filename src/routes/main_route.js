@@ -25,7 +25,7 @@ module.exports = function (app, passport) {
   );
 
 
-  router.post('/signup', function (req, res) {l
+  router.post('/signup', function (req, res) {
     var userController = common.getController("user");
 
     userController.signUp(common.getRequestObj(req)).then(function (response) {
@@ -51,6 +51,18 @@ module.exports = function (app, passport) {
 
   });
 
+  router.post('/company/choose', function (req, res) {
+    var userController = common.getController("user");
+
+    userController.chooseCompany(common.getRequestObj(req)).then(function (response) {
+      if (common.isError(response)) {
+        res.json(401, response);
+      } else {
+        res.send(200, response);
+      }
+    });
+
+  });
 
   /*
    -------------------------------
