@@ -122,13 +122,13 @@ module.exports = function(feature, repository) {
          return d.promise;
          },
          */
-        interceptor: function (interceptor, data){
+        interceptor: function (interceptor, request){
             var d = new q.defer();
             interceptor += "_interceptor";
             if (common.isEmpty(this[interceptor])){
-                d.resolve(data);
+                d.resolve(request);
             }else{
-                this[interceptor](data).then(function(interceptedData){
+                this[interceptor](request).then(function(interceptedData){
                     //common.log(interceptedData);
                     d.resolve(interceptedData);
                 });

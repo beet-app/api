@@ -87,7 +87,7 @@ module.exports = function(feature){
             }
             common.log(obj);
             var obj = this.merge(obj, schema.fields);
-
+            common.log(obj);
             var parent = {table:feature,fields:{}};
             var children = [];
 

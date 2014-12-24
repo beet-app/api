@@ -11,6 +11,7 @@ var schema = {
             table: "company_attribute"
         }
     }
+
 };
 module.exports = schema;
 

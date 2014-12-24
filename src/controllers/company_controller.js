@@ -11,7 +11,7 @@ module.exports = function(repository) {
         create_interceptor: function (request) {
             var d = new q.defer();
 
-            this.checkPlan(request).then(function(planResponse){
+          controller.checkPlan(request).then(function(planResponse){
                 controller.checkUser(planResponse).then(function(userResponse){
 
                     d.resolve(userResponse);

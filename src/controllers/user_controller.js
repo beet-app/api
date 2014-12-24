@@ -15,7 +15,8 @@ module.exports = function(repository){
 
                         if (common.isError(userExists)){
                             data.password = common.generateHash(data.password);
-                            userController.save(data, "create").then(function(createResult){
+                            request.data = data;
+                            userController.save(request, "create").then(function(createResult){
                                 if (common.isError(createResult)){
                                     d.resolve(createResult);
                                 }else{

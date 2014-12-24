@@ -99,7 +99,7 @@ module.exports = function(passport) {
                     var user = response.data;
                 }
                 // if the user is found but the password is wrong
-                if (1 == 1) {
+                if (common.compareHash(password, user.password)){
                     if (user.active.toString()=="1"){
 
                         var companyController = common.getController("company");
