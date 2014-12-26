@@ -34,25 +34,16 @@ module.exports = function (repository) {
 											});
 											d.resolve(common.getSuccessObj());
 										}
-
 									});
-
 								}
 							});
-
-
 						} else {
 							d.resolve(common.getErrorObj("user_exists"));
-
 						}
-
 					});
-
 				} else {
 					d.resolve(common.getErrorObj("invalid_email"));
 				}
-
-
 			} else {
 				d.resolve(common.getErrorObj("missing_params"));
 			}
@@ -64,10 +55,10 @@ module.exports = function (repository) {
 			var d = new q.defer();
 			var userController = controller._this;
 			if (request.data.uuid !== undefined) {
-				userController.getOne([{field: "uuid", value: request.data.uuid}, {
-					field: "active",
-					value: 0
-				}]).then(function (userExists) {
+				userController.getOne([
+					{field: "uuid", value: request.data.uuid},
+					{field: "active",value: 0}
+				]).then(function (userExists) {
 					if (common.isError(userExists)) {
 						d.resolve(common.getErrorObj("already_validated_user"));
 					} else {
@@ -78,10 +69,8 @@ module.exports = function (repository) {
 							} else {
 								d.resolve(common.getSuccessObj());
 							}
-
 						});
 					}
-
 				});
 			} else {
 				d.resolve(common.getErrorObj("missing_params"));
