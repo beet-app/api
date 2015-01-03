@@ -3,7 +3,7 @@ var common = require("../libs/common");
 
 var validate   = common.getLib('validate');
 
-module.exports = function(feature, repository) {
+module.exports = function(feature, repository, request) {
     //var globalRepository = common.getRepository("global")(feature);
 
     return {
@@ -41,7 +41,7 @@ module.exports = function(feature, repository) {
             return d.promise;
 
         },
-        find: function (request) {
+        find: function () {
             var d = new q.defer();
 
             var data = request.data;
@@ -61,12 +61,12 @@ module.exports = function(feature, repository) {
             return d.promise;
 
         },
-        save: function (request, mode) {
+        save: function (mode) {
             var d = new q.defer();
 
             mode = common.isEmpty(mode) ? "save" : mode;
 
-            this.interceptor(mode, request).then(function(request){
+            this.interceptor(mode).then(function(request){
                 if (common.isError(request)){
                     d.resolve(request);
                 }else{
@@ -122,7 +122,7 @@ module.exports = function(feature, repository) {
          return d.promise;
          },
          */
-        interceptor: function (interceptor, request){
+        interceptor: function (interceptor){
             var d = new q.defer();
             interceptor += "_interceptor";
             if (common.isEmpty(this[interceptor])){

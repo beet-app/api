@@ -51,7 +51,14 @@ module.exports = function (app, passport) {
 
   });
 
-  router.post('/company/choose', function (req, res) {
+
+  router.post('/company/choose', passport.authenticate('choose-company'),
+    function (req, res) {
+      res.json(req.user);
+    }
+  );
+
+  router.post('/company/choose2', function (req, res) {
     var userController = common.getController("user");
 
     userController.chooseCompany(common.getRequestObj(req)).then(function (response) {
@@ -78,9 +85,9 @@ module.exports = function (app, passport) {
     var feature = arrFeatures[x];
 
     router.post("/" + feature, function (req, res) {
-      var globalController = common.getController(feature);
+      var globalController = common.getController(feature, req);
 
-      globalController.save(common.getRequestObj(req)).then(function (response) {
+      globalController.save().then(function (response) {
         if (common.isError(response)) {
           res.json(401, response);
         } else {
@@ -90,9 +97,9 @@ module.exports = function (app, passport) {
 
     });
     router.post("/" + feature + "/create", isLoggedIn, function (req, res) {
-      var globalController = common.getController(feature);
+      var globalController = common.getController(feature, req);
 
-      globalController.save(common.getRequestObj(req), "create").then(function (response) {
+      globalController.save("create").then(function (response) {
         if (common.isError(response)) {
           res.json(401, response);
         } else {
@@ -102,9 +109,9 @@ module.exports = function (app, passport) {
 
     });
     router.post("/" + feature  + "/update", function (req, res) {
-      var globalController = common.getController(feature);
+      var globalController = common.getController(feature, req);
 
-      globalController.save(common.getRequestObj(req), "update").then(function (response) {
+      globalController.save("update").then(function (response) {
         if (common.isError(response)) {
           res.json(401, response);
         } else {
@@ -114,9 +121,9 @@ module.exports = function (app, passport) {
 
     });
     router.get("/" + feature, function (req, res) {
-      var globalController = common.getController(feature);
+      var globalController = common.getController(feature, req);
 
-      globalController.find(common.getRequestObj(req)).then(function (response) {
+      globalController.find().then(function (response) {
         if (common.isError(response)) {
           res.json(401, response);
         } else {
@@ -126,9 +133,9 @@ module.exports = function (app, passport) {
 
     });
     router.delete("/" + feature, function (req, res) {
-      var globalController = common.getController(feature);
+      var globalController = common.getController(feature, req);
 
-      globalController.delete(common.getRequestObj(req)).then(function (response) {
+      globalController.delete().then(function (response) {
         if (common.isError(response)) {
           res.json(401, response);
         } else {
@@ -143,7 +150,7 @@ module.exports = function (app, passport) {
   router.get('/attribute/:feature', function (req, res) {
     var feature = req.params.feature;
 
-    var globalController = common.getController(feature);
+    var globalController = common.getController(feature, req);
 
     globalController.getAttributeGroup().then(function (response) {
       if (common.isError(response)) {
@@ -162,9 +169,9 @@ module.exports = function (app, passport) {
 
 
   router.get('/user/company', isLoggedIn, function (req, res) {
-    var userController = common.getController("user");
+    var userController = common.getController("user", req);
 
-    userController.getAllCompanies(common.getRequestObj(req)).then(function (response) {
+    userController.getAllCompanies().then(function (response) {
       if (common.isError(response)) {
         res.json(401, response);
       } else {

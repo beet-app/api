@@ -2,7 +2,7 @@ var q = require("q");
 var common = require("../libs/common");
 var attributeTypeController = common.getController('attribute_type');
 
-module.exports = function(repository) {
+module.exports = function(repository, request) {
   return {
     getAttributeGroupByFeature: function (feature) {
       var d = new q.defer();

@@ -127,4 +127,20 @@ module.exports = function(passport) {
                 }
             });
         }));
+
+
+
+
+  passport.use('choose-company', new LocalStrategy({
+      usernameField : 'email',
+      passwordField : 'password',
+      passReqToCallback : true
+    },
+    function(req, email, password, done) {
+
+      req.user.company = req.body.company;
+      return done(null, common.getResultObj(req.user));
+
+    }));
+
 };

@@ -1,10 +1,10 @@
 var q = require("q");
 var common = require("../libs/common");
 
-module.exports = function (repository) {
+module.exports = function (repository, request) {
 	var controller = {
 		_this: this,
-		signUp: function (request) {
+		signUp: function () {
 			var d = new q.defer();
 			var data = request.data;
 			if (data.email !== undefined && data.password !== undefined) {
@@ -50,7 +50,7 @@ module.exports = function (repository) {
 
 			return d.promise;
 		},
-		validate: function (request) {
+		validate: function () {
 
 			var d = new q.defer();
 			var userController = controller._this;
@@ -78,7 +78,7 @@ module.exports = function (repository) {
 
 			return d.promise;
 		},
-		chooseCompany: function (request) {
+		chooseCompany: function () {
 
 
 			/*

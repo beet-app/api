@@ -4,11 +4,11 @@ var conn = common.getLib('conn');
 
 var validate   = common.getLib('validate');
 
-module.exports = function(repository) {
+module.exports = function(repository, request) {
     //var globalRepository = common.getRepository("global")(feature);
 
     var controller =  {
-        create_interceptor: function (request) {
+        create_interceptor: function () {
             var d = new q.defer();
 
           controller.checkPlan(request).then(function(planResponse){
@@ -21,7 +21,7 @@ module.exports = function(repository) {
             return d.promise;
 
         },
-        checkPlan : function(request){
+        checkPlan : function(){
             var d = new q.defer();
             if (common.isEmpty(request.data.plan)){
                 var planController = common.getController("plan");
@@ -35,7 +35,7 @@ module.exports = function(repository) {
 
             return d.promise;
         },
-        checkUser : function(request){
+        checkUser : function(){
             var d = new q.defer();
             if (common.isEmpty(request.data.user)){
                 var user = {};

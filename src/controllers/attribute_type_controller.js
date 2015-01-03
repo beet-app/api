@@ -1,6 +1,6 @@
 var q = require("q");
 var common = require("../libs/common");
-module.exports = function(repository){
+module.exports = function(repository, request){
   return {
     getAllAsDict: function () {
 

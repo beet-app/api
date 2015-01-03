@@ -130,15 +130,18 @@ var lib = {
     getSchema:function(file){
         return this.getFile("../schemas/"+file+"_schema");
     },
-    getController:function(file){
+    getController:function(file, request){
+        if (request){
+            request = this.getRequestObj(request);
+        }
 
         var repository = this.getRepository(file);
         var controller = this.getFile("../controllers/"+file+"_controller");
-        var globalController = this.getFile("../controllers/global_controller")(file, repository);
+        var globalController = this.getFile("../controllers/global_controller")(file, repository, request);
         if (this.isEmpty(controller)){
             controller = globalController;
         }else{
-            controller = this.attach(controller(repository), globalController);
+            controller = this.attach(controller(repository, request), globalController);
         }
         return controller;
 
