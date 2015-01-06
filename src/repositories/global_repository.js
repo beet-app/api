@@ -18,7 +18,6 @@ module.exports = function(feature) {
 
         },
         save: function (obj, mode) {
-
             var d = new q.defer();
 
             mode = common.isEmpty(mode) ? "save" : mode;

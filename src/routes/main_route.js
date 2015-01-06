@@ -26,7 +26,7 @@ module.exports = function (app, passport) {
 
 
   router.post('/signup', function (req, res) {
-    var userController = common.getController("user");
+    var userController = common.getController("user", req);
 
     userController.signUp(common.getRequestObj(req)).then(function (response) {
       if (common.isError(response)) {
@@ -39,7 +39,7 @@ module.exports = function (app, passport) {
   });
 
   router.post('/user/validate', function (req, res) {
-    var userController = common.getController("user");
+    var userController = common.getController("user", req);
 
     userController.validate(common.getRequestObj(req)).then(function (response) {
       if (common.isError(response)) {

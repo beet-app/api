@@ -88,9 +88,12 @@ var lib = {
     save: function (obj, mode) {
 
         var d = new q.defer();
+        console.log('aaaaaa');
 
+        console.log(common.isEmpty(mode));
         mode = (common.isEmpty(mode)) ? "save" : mode.toLowerCase();
-
+        console.log('bbbbb');
+        console.log(mode);
         var parent = (obj.parent) ? obj.parent : obj;
 
         lib.exists(parent).then(function(parentExists) {

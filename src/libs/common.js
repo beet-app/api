@@ -107,14 +107,18 @@ var lib = {
     },
     getRequestObj:function(req){
         var request = {};
-        if (!this.isEmpty(req.body)){
-            request.data = req.body;
-        }
-        //if (!this.isEmpty(req.params)){
-        //    request.data = req.params;
-        //}
-        if (!this.isEmpty(req.user)){
-            request.user = req.user;
+        if (!this.isEmpty(req.data)){
+            request = req;
+        } else{
+            if (!this.isEmpty(req.body)){
+                request.data = req.body;
+            }
+            if (!this.isEmpty(req.user)){
+                request.user = req.user;
+            }
+            //if (!this.isEmpty(req.params)){
+            //    request.data = req.params;
+            //}
         }
 
         return request;
@@ -122,9 +126,9 @@ var lib = {
     getFile:function(file){
         var fs = require('fs');
         if (fs.existsSync(file.replace("..","src")+".js")) {
-          return require(file);
+            return require(file);
         }else{
-          return null;
+            return null;
         }
     },
     getSchema:function(file){

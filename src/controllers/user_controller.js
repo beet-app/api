@@ -3,7 +3,7 @@ var common = require("../libs/common");
 
 module.exports = function (repository, request) {
 	var controller = {
-		_this: this,
+		//_this: this,
 		signUp: function () {
 			var d = new q.defer();
 			var data = request.data;
@@ -12,12 +12,13 @@ module.exports = function (repository, request) {
 				if (common.isEmail(data.email)) {
 
 					this.getOne({field: "email", value: data.email}).then(function (userExists) {
-						var userController = controller._this;
+						//var userController = controller._this;
+						var userController = common.getController("user", request);
 
 						if (common.isError(userExists)) {
 							data.password = common.generateHash(data.password);
 							request.data = data;
-							userController.save(request, "create").then(function (createResult) {
+							userController.save("create").then(function (createResult) {
 								if (common.isError(createResult)) {
 									d.resolve(createResult);
 								} else {
@@ -53,7 +54,8 @@ module.exports = function (repository, request) {
 		validate: function () {
 
 			var d = new q.defer();
-			var userController = controller._this;
+			//var userController = controller._this;
+			var userController = common.getController("user", request);
 			if (request.data.uuid !== undefined) {
 				userController.getOne([
 					{field: "uuid", value: request.data.uuid},
@@ -63,7 +65,7 @@ module.exports = function (repository, request) {
 						d.resolve(common.getErrorObj("already_validated_user"));
 					} else {
 						request.data.active = 1;
-						userController.save(request, "update").then(function (result) {
+						userController.save("update").then(function (result) {
 							if (common.isError(result)) {
 								d.resolve(common.getErrorObj("validate_user"));
 							} else {

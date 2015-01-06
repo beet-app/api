@@ -65,7 +65,6 @@ module.exports = function(feature, repository, request) {
             var d = new q.defer();
 
             mode = common.isEmpty(mode) ? "save" : mode;
-
             this.interceptor(mode).then(function(request){
                 if (common.isError(request)){
                     d.resolve(request);
@@ -75,12 +74,10 @@ module.exports = function(feature, repository, request) {
                     var ct = 0;
                     for(var key in arr){
                         var validateObj = validate.validate(arr[key]);
-
                         if (common.isError(validateObj)){
                             d.resolve(common.getErrorObj("invalid"));
                             break;
                         }else{
-
                             repository.save(arr[key], mode).then(function(saveResult){
                                 if (common.isError(saveResult)){
                                     d.resolve(common.getErrorObj(mode + "_" + feature));
