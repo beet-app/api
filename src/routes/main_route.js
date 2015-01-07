@@ -147,7 +147,7 @@ module.exports = function (app, passport) {
   }
 
 
-  router.get('/attribute/:feature/', function (req, res) {
+  router.get('/attribute/:feature', function (req, res) {
     var feature = req.params.feature;
 
     var globalController = common.getController(feature, req);

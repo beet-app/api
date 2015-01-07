@@ -54,7 +54,7 @@ module.exports = function(repository, request) {
 
             return d.promise;
         },
-        getAttributeGroup: function (){
+        getAttributeGroup2: function (){
           var d = new q.defer();
 
           var attributeController = common.getController("attribute");
