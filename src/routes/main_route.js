@@ -20,6 +20,8 @@ module.exports = function (app, passport) {
 
   router.post('/login', passport.authenticate('local-login'),
       function (req, res) {
+        delete req.user.data.password;
+        delete req.user.data.active;
         res.json(req.user);
       }
   );
@@ -41,7 +43,7 @@ module.exports = function (app, passport) {
   router.post('/user/validate', function (req, res) {
     var userController = common.getController("user", req);
 
-    userController.validate(common.getRequestObj(req)).then(function (response) {
+    userController.validate().then(function (response) {
       if (common.isError(response)) {
         res.json(401, response);
       } else {
@@ -52,24 +54,22 @@ module.exports = function (app, passport) {
   });
 
 
-  router.post('/company/choose', passport.authenticate('choose-company'),
+  router.post('/company/choose', isLoggedIn,passport.authenticate('choose-company'),
     function (req, res) {
+
+      var userController = common.getController("user", req);
+
+      userController.chooseCompany().then(function(response){
+        if (common.isError(response)) {
+          res.json(401, response);
+        } else {
+          res.send(200, response);
+        }
+      });
       res.json(req.user);
     }
   );
 
-  router.post('/company/choose2', function (req, res) {
-    var userController = common.getController("user");
-
-    userController.chooseCompany(common.getRequestObj(req)).then(function (response) {
-      if (common.isError(response)) {
-        res.json(401, response);
-      } else {
-        res.send(200, response);
-      }
-    });
-
-  });
 
   /*
    -------------------------------
@@ -147,7 +147,7 @@ module.exports = function (app, passport) {
   }
 
 
-  router.get('/attribute/:feature', function (req, res) {
+  router.get('/attribute/:feature/', function (req, res) {
     var feature = req.params.feature;
 
     var globalController = common.getController(feature, req);

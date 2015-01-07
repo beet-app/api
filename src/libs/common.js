@@ -116,9 +116,6 @@ var lib = {
             if (!this.isEmpty(req.user)){
                 request.user = req.user;
             }
-            //if (!this.isEmpty(req.params)){
-            //    request.data = req.params;
-            //}
         }
 
         return request;

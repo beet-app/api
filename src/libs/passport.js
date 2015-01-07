@@ -18,7 +18,12 @@ module.exports = function(passport) {
 
     // used to serialize the user for the session
     passport.serializeUser(function(user, done) {
-        done(null, user.data);
+        var data = {};
+        data.uuid = user.data.uuid;
+        if (!common.isEmpty(user.data.company)) {
+            data.company = user.data.company;
+        }
+        done(null, data);
     });
 
     // used to deserialize the user

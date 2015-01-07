@@ -7,6 +7,9 @@ var schema = {
         user:{
             table: "user_company"
         },
+        type:{
+            table: "company_type"
+        },
         attribute:{
             table: "company_attribute"
         }
