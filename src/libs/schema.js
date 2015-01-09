@@ -85,9 +85,9 @@ module.exports = function(feature){
             if (!common.isEmpty(schema.fields.uuid) && common.isEmpty(obj.uuid)){
                 obj.uuid = this.generateUUID();
             }
-            common.log(obj);
+
             var obj = this.merge(obj, schema.fields);
-            common.log(obj);
+
             var parent = {table:feature,fields:{}};
             var children = [];
 

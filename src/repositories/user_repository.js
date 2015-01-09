@@ -24,6 +24,19 @@ module.exports = {
             d.resolve(dataSet);
         });
         return d.promise;
+    },
+    chooseCompany: function (user_uuid, company_uuid) {
+
+
+      var d = new q.defer();
+
+      var query = "select company_uuid from user_company where user_uuid='" + user_uuid + "' AND company_uuid='" + company_uuid + "'";
+      conn.query(query).then(function (dataSet) {
+          d.resolve(dataSet);
+      });
+
+      return d.promise;
+
     }
 
 }

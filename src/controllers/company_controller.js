@@ -10,7 +10,6 @@ module.exports = function(repository, request) {
     var controller =  {
         create_interceptor: function () {
             var d = new q.defer();
-
           controller.checkPlan(request).then(function(planResponse){
                 controller.checkUser(planResponse).then(function(userResponse){
 
@@ -43,7 +42,7 @@ module.exports = function(repository, request) {
 
                 var profileController = common.getController("profile");
 
-                profileController.getOne("c5f2a251-cbd1-41d0-8e02-09a47409ab07").then(function(profileResponse){
+                profileController.getOne(common.getDefaultProfile()).then(function(profileResponse){
                     user.profile = profileResponse.data.uuid;
                     request.data.user = user;
                     d.resolve(request);

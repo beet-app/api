@@ -82,14 +82,14 @@ module.exports = function (repository, request) {
     },
     chooseCompany: function () {
 
-
+      /*
       {
           features:{
 
           }
 
       }
-      /*
+
 
 
        PAREI NA HORA DE TIRAR ESSA PORRA DAQUI.
@@ -100,22 +100,13 @@ module.exports = function (repository, request) {
 
       var d = new q.defer();
 
-      var queryBuilder = "select company_uuid from user_company where user_uuid='" + user.uuid + "'";
-      repository.freeQuery(queryBuilder).then(function (dataSet) {
+      //common.log(request.user);
+      repository.chooseCompany(request.user.uuid, request.data.company).then(function (dataSet) {
         var arr = [];
         if (dataSet.rows.length > 0) {
-          var companyController = common.getController("global")("company");
-          var dataSetLength = dataSet.rows.length;
-          for (var x = 0; x < dataSetLength; x++) {
-            companyController.getOne(dataSet.rows[x].company_uuid).then(function (company) {
-              arr.push(company);
-              if (arr.length == dataSetLength) {
-                d.resolve({data: arr});
-              }
-            });
-          }
+          d.resolve(common.getResultObj({features:[]}));
         } else {
-          d.resolve({data: arr});
+          d.resolve(common.getErrorObj("invalid_company"));
         }
 
       });

@@ -7,6 +7,28 @@ module.exports = function(feature, repository, request) {
     //var globalRepository = common.getRepository("global")(feature);
 
     return {
+      getAll: function () {
+        var d = new q.defer();
+
+
+
+        var queryBuilder = {
+          table: feature
+        };
+
+        repository.getAll(queryBuilder).then(function (featureDataSet) {
+          if (featureDataSet.rows.length > 0) {
+
+            d.resolve(common.getResultObj(featureDataSet.rows));
+
+          } else {
+            d.resolve(common.getErrorObj("not_found"));
+          }
+        });
+
+        return d.promise;
+
+      },
         getOne: function (search) {
             var d = new q.defer();
 
@@ -65,6 +87,7 @@ module.exports = function(feature, repository, request) {
             var d = new q.defer();
 
             mode = common.isEmpty(mode) ? "save" : mode;
+
             this.interceptor(mode).then(function(request){
                 if (common.isError(request)){
                     d.resolve(request);
@@ -122,11 +145,11 @@ module.exports = function(feature, repository, request) {
         interceptor: function (interceptor){
             var d = new q.defer();
             interceptor += "_interceptor";
+
             if (common.isEmpty(this[interceptor])){
                 d.resolve(request);
             }else{
                 this[interceptor](request).then(function(interceptedData){
-                    //common.log(interceptedData);
                     d.resolve(interceptedData);
                 });
             }

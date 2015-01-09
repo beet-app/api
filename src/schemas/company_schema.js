@@ -7,7 +7,7 @@ var schema = {
         user:{
             table: "user_company"
         },
-        type:{
+        company_type:{
             table: "company_type"
         },
         attribute:{

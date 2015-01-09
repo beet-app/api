@@ -135,7 +135,6 @@ var lib = {
         if (request){
             request = this.getRequestObj(request);
         }
-
         var repository = this.getRepository(file);
         var controller = this.getFile("../controllers/"+file+"_controller");
         var globalController = this.getFile("../controllers/global_controller")(file, repository, request);
@@ -195,6 +194,10 @@ var lib = {
             console.log(result);
         }
         console.log("-------------------------------");
+    },
+
+    getDefaultProfile : function(){
+      return "c5f2a251-cbd1-41d0-8e02-09a47409ab07";
     }
 };
 

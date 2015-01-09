@@ -18,11 +18,13 @@ module.exports = function(passport) {
 
     // used to serialize the user for the session
     passport.serializeUser(function(user, done) {
+      //common.log(user);
         var data = {};
         data.uuid = user.data.uuid;
-        if (!common.isEmpty(user.data.company)) {
+        if (user.data.company){
             data.company = user.data.company;
         }
+      //common.log(data);
         done(null, data);
     });
 
@@ -142,7 +144,7 @@ module.exports = function(passport) {
       passReqToCallback : true
     },
     function(req, email, password, done) {
-
+      //common.log(req.user);
       req.user.company = req.body.company;
       return done(null, common.getResultObj(req.user));
 

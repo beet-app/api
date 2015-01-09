@@ -70,7 +70,17 @@ module.exports = function(feature) {
             });
 
             return d.promise;
-        }
+        },
+      getAll: function (queryBuilder) {
+        var d = new q.defer();
+
+        conn.query("select * from "+queryBuilder.table).then(function (featureDataSet) {
+            d.resolve(featureDataSet);
+        });
+
+        return d.promise;
+
+      }
 
 
     }
