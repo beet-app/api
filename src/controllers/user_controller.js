@@ -81,51 +81,19 @@ module.exports = function (repository, request) {
       return d.promise;
     },
     chooseCompany: function () {
-
-      /*
-      {
-          features:{
-
-          }
-
-      }
-
-
-
-       PAREI NA HORA DE TIRAR ESSA PORRA DAQUI.
-
-
-       */
-
-
       var d = new q.defer();
 
-      //common.log(request.user);
       repository.chooseCompany(request.user.uuid, request.data.company).then(function (dataSet) {
-        var arr = [];
         if (dataSet.rows.length > 0) {
           d.resolve(common.getResultObj({features:[]}));
         } else {
           d.resolve(common.getErrorObj("invalid_company"));
         }
-
       });
 
       return d.promise;
-
     },
     getAllCompanies: function (user) {
-
-
-      /*
-
-
-       PAREI NA HORA DE TIRAR ESSA PORRA DAQUI.
-
-
-       */
-
-
       var d = new q.defer();
 
       var queryBuilder = "select company_uuid from user_company where user_uuid='" + user.uuid + "'";
@@ -149,7 +117,17 @@ module.exports = function (repository, request) {
       });
 
       return d.promise;
+    },
+    getFeatureByUserCompany: function(){
+      var d = q.defer();
 
+      repository.getFeatureByUserCompany(request.user.uuid, request.data.company).then(function(dataset){
+        if (dataset.rows.length > 0) {
+          d.resolve(common.getResultObj(dataset));
+        } else {
+          d.resolve(common.getErrorObj("invalid_company"));
+        }
+      });
     }
   };
   return controller;

@@ -19,11 +19,11 @@ module.exports = function (app, passport) {
   });
 
   router.post('/login', passport.authenticate('local-login'),
-    function (req, res) {
-      delete req.user.data.password;
-      delete req.user.data.active;
-      res.json(req.user);
-    }
+      function (req, res) {
+        delete req.user.data.password;
+        delete req.user.data.active;
+        res.json(req.user);
+      }
   );
 
 
@@ -55,19 +55,19 @@ module.exports = function (app, passport) {
 
 
   router.post('/company/choose', isLoggedIn,passport.authenticate('choose-company'),
-    function (req, res) {
-common.log(req.user);
-      var userController = common.getController("user", req);
+      function (req, res) {
 
-      userController.chooseCompany().then(function(response){
-        if (common.isError(response)) {
-          res.json(401, response);
-        } else {
-          res.send(200, response);
-        }
-      });
-      res.json(req.user);
-    }
+        var userController = common.getController("user", req);
+
+        userController.chooseCompany().then(function(response){
+          if (common.isError(response)) {
+            res.json(401, response);
+          } else {
+            res.send(200, response);
+          }
+        });
+        res.json(req.user);
+      }
   );
 
 
@@ -159,7 +159,7 @@ common.log(req.user);
   router.get('/attribute/:feature', function (req, res) {
     var feature = req.params.feature;
 
-    var globalController = common.getController(req.params.feature, req);
+    var globalController = common.getController(feature, req);
 
     globalController.getAttributeGroup().then(function (response) {
       if (common.isError(response)) {
@@ -191,22 +191,22 @@ common.log(req.user);
 
 
   router.get('/teste/:feature',
-    function (req, res) {
-      var conn = common.getLib("conn");
-      conn.query("select * from " + req.params.feature).then(function (dataSet) {
-        res.json(dataSet.rows);
-      });
-      //res.redirect("http://127.0.0.1:9000/#/home");
-    }
+      function (req, res) {
+        var conn = common.getLib("conn");
+        conn.query("select * from " + req.params.feature).then(function (dataSet) {
+          res.json(dataSet.rows);
+        });
+        //res.redirect("http://127.0.0.1:9000/#/home");
+      }
   );
   router.get('/teste2/:feature',
-    function (req, res) {
-      var ct = common.getController(req.params.feature);
-      ct.getAttributeGroup().then(function (teste) {
-        res.json(teste);
-      });
-      //res.redirect("http://127.0.0.1:9000/#/home");
-    }
+      function (req, res) {
+        var ct = common.getController(req.params.feature);
+        ct.getAttributeGroup().then(function (teste) {
+          res.json(teste);
+        });
+        //res.redirect("http://127.0.0.1:9000/#/home");
+      }
   );
 
 
