@@ -170,11 +170,13 @@ module.exports = function(feature, repository, request) {
 
             return d.promise;
         },
-        getAllByUser: function (user_uuid){
+        getAllByUser: function (uuid){
             var d = new q.defer();
 
+            uuid = common.isEmpty(uuid) ? request.user.uuid : uuid;
+
             var attributeController = common.getController("attribute");
-            attributeController.getAttributeValueGroupByUserFeature(user_uuid, feature).then(function(dataSet){
+            attributeController.getAttributeValueGroupByUserFeature(uuid, feature).then(function(dataSet){
                 if (common.isError(dataSet)){
                     d.resolve(common.getErrorObj("find_" + feature));
                 }else{

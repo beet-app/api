@@ -141,6 +141,18 @@ module.exports = function (app, passport) {
     });
 
   });
+  router.get("/:feature/all-by-user", function (req, res) {
+    var globalController = common.getController(req.params.feature, req);
+
+    globalController.getAllByUser().then(function (response) {
+      if (common.isError(response)) {
+        res.json(401, response);
+      } else {
+        res.send(200, response);
+      }
+    });
+
+  });
   router.delete("/:feature", function (req, res) {
     var globalController = common.getController(req.params.feature, req);
 
@@ -153,8 +165,6 @@ module.exports = function (app, passport) {
     });
 
   });
-
-
 
   router.get('/attribute/:feature', function (req, res) {
     var feature = req.params.feature;

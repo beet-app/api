@@ -108,8 +108,7 @@ module.exports = function(passport) {
                 // if the user is found but the password is wrong
                 if (common.compareHash(password, user.password)){
                     if (user.active.toString()=="1"){
-
-                        var companyController = common.getController("company");
+                        var companyController = common.getController("company", req);
 
                         companyController.getAllByUser(user.uuid).then(function (companyResponse) {
                             //companyController.getByUser(user.uuid).then( function(companyResponse) {
