@@ -42,16 +42,15 @@ module.exports = {
         var d = new q.defer();
 
         var query = "";
-        query += "select f.*";
-        query += "from feature f";
-        query += "inner join feature_module fm on (fm.feature_uuid = f.uuid)";
-        query += "inner join module_plan mp on (mp.module_uuid = fm.module_uuid)";
-        query += "inner join plan p on (p.uuid = mp.plan_uuid)";
-        query += "inner join company c on (c.plan_uuid = p.uuid)";
-        query += "inner join user_company uc on (uc.company_uuid = c.uuid)";
-        query += "inner join user u on (u.uuid = uc.user_uuid)";
-        query += "where u.uuid = '" + user_uuid + "'";
-        query += "and c.uuid = '" + company_uuid + "'";
+        query += " select f.*";
+        query += " from feature f";
+        query += " inner join feature_module fm on (fm.feature_uuid = f.uuid)";
+        query += " inner join module_plan mp on (mp.module_uuid = fm.module_uuid)";
+        query += " inner join plan p on (p.uuid = mp.plan_uuid)";
+        query += " inner join company c on (c.plan_uuid = p.uuid)";
+        query += " inner join user_company uc on (uc.company_uuid = c.uuid)";
+        query += " where uc.user_uuid = '" + user_uuid + "'";
+        query += " and uc.company_uuid = '" + company_uuid + "'";
 
         conn.query(query).then(function (dataset){
             d.resolve(dataset);
@@ -59,8 +58,7 @@ module.exports = {
 
         return d.promise();
     }
-}
-
+};
 
 
 
