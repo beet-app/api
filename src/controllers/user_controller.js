@@ -90,7 +90,7 @@ module.exports = function (repository, request) {
                 if (dataSet.rows.length > 0) {
                     repository.getFeatureByUserCompany(request.user.data.uuid, request.data.company).then(function (dataset) {
                         if (dataset.rows.length > 0) {
-                            d.resolve(common.getResultObj(dataset));
+                            d.resolve(common.getResultObj(dataset.rows));
                         } else {
                             d.resolve(common.getResultObj("invalid_feature"));
                         }
