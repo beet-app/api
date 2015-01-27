@@ -56,7 +56,7 @@ module.exports = {
             d.resolve(dataset);
         });
 
-        return d.promise();
+        return d.promise;
     }
 };
 

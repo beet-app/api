@@ -63,10 +63,9 @@ module.exports = function (app, passport) {
           if (common.isError(response)) {
             res.json(401, response);
           } else {
-            res.send(200, response);
+            res.json(200, response);
           }
         });
-        res.json(req.user);
       }
   );
 
