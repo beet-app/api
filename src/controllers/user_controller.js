@@ -85,12 +85,24 @@ module.exports = function (repository, request) {
         },
         chooseCompany: function () {
             var d = new q.defer();
-
+            var controller = common.getController("feature", request);
             repository.chooseCompany(request.user.data.uuid, request.data.company).then(function (dataSet) {
                 if (dataSet.rows.length > 0) {
-                    repository.getFeatureByUserCompany(request.user.data.uuid, request.data.company).then(function (dataset) {
-                        if (dataset.rows.length > 0) {
-                            d.resolve(common.getResultObj(dataset.rows));
+                    repository.getFeatureByUserCompany(request.user.data.uuid, request.data.company).then(function (dataSetFeature) {
+                        if (dataSetFeature.rows.length > 0) {
+                          var arr = [];
+                          for (var x=0 ; x<dataSetFeature.rows.length ; x++){
+
+                            controller.getOne(dataSetFeature.rows[x].uuid).then(function(featureResponse){
+                              common.log(featureResponse);
+                              arr.push(featureResponse.data);
+                              if (arr.length==dataSetFeature.rows.length){
+                                d.resolve(common.getResultObj(arr));
+                              }
+                            });
+
+                          }
+
                         } else {
                             d.resolve(common.getResultObj("invalid_feature"));
                         }

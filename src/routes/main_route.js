@@ -15,7 +15,7 @@ module.exports = function (app, passport) {
   });
 
   router.get('/login', isLoggedIn, function (req, res) {
-    res.send(req.user);
+    res.send(common.getResultObj(req.user));
   });
 
   router.post('/login', passport.authenticate('local-login'),
