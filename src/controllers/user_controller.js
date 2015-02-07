@@ -97,6 +97,7 @@ module.exports = function (repository, request) {
                               common.log(featureResponse);
                               arr.push(featureResponse.data);
                               if (arr.length==dataSetFeature.rows.length){
+
                                 d.resolve(common.getResultObj(arr));
                               }
                             });
