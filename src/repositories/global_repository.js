@@ -17,6 +17,21 @@ module.exports = function(feature) {
             return d.promise;
 
         },
+        find: function (search) {
+
+            var d = new q.defer();
+
+            search = schema.getSearchObj(search);
+
+            conn.find(search).then(function(mainResult){
+
+                d.resolve(mainResult);
+
+            });
+
+            return d.promise;
+
+        },
         save: function (obj, mode) {
             var d = new q.defer();
 
@@ -66,6 +81,16 @@ module.exports = function(feature) {
 
             var attributeController = common.getController("attribute");
             attributeController.getAttributeValueGroupByUserFeature(user_uuid, feature).then(function(obj){
+                d.resolve(common.getResultObj(obj.data));
+            });
+
+            return d.promise;
+        },
+        getAllByCompany: function (company_uuid){
+            var d = new q.defer();
+
+            var attributeController = common.getController("attribute");
+            attributeController.getAttributeValueGroupByCompanyFeature(company_uuid, feature).then(function(obj){
                 d.resolve(common.getResultObj(obj.data));
             });
 

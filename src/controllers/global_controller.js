@@ -7,28 +7,28 @@ module.exports = function(feature, repository, request) {
     //var globalRepository = common.getRepository("global")(feature);
 
     return {
-      getAll: function () {
-        var d = new q.defer();
+        getAll: function () {
+            var d = new q.defer();
 
 
 
-        var queryBuilder = {
-          table: feature
-        };
+            var queryBuilder = {
+                table: feature
+            };
 
-        repository.getAll(queryBuilder).then(function (featureDataSet) {
-          if (featureDataSet.rows.length > 0) {
+            repository.getAll(queryBuilder).then(function (featureDataSet) {
+                if (featureDataSet.rows.length > 0) {
 
-            d.resolve(common.getResultObj(featureDataSet.rows));
+                    d.resolve(common.getResultObj(featureDataSet.rows));
 
-          } else {
-            d.resolve(common.getErrorObj("not_found"));
-          }
-        });
+                } else {
+                    d.resolve(common.getErrorObj("not_found"));
+                }
+            });
 
-        return d.promise;
+            return d.promise;
 
-      },
+        },
         getOne: function (search) {
             var d = new q.defer();
 
@@ -177,6 +177,23 @@ module.exports = function(feature, repository, request) {
 
             var attributeController = common.getController("attribute");
             attributeController.getAttributeValueGroupByUserFeature(uuid, feature).then(function(dataSet){
+                if (common.isError(dataSet)){
+                    d.resolve(common.getErrorObj("find_" + feature));
+                }else{
+                    d.resolve(common.getResultObj(dataSet.data));
+                }
+
+            });
+
+            return d.promise;
+        },
+        getAllByCompany: function (uuid){
+            var d = new q.defer();
+
+            uuid = common.isEmpty(uuid) ? request.user.company : uuid;
+            common.log(uuid);
+            var attributeController = common.getController("attribute");
+            attributeController.getAttributeValueGroupByCompanyFeature(uuid, feature).then(function(dataSet){
                 if (common.isError(dataSet)){
                     d.resolve(common.getErrorObj("find_" + feature));
                 }else{
