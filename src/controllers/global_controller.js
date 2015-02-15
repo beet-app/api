@@ -191,9 +191,7 @@ module.exports = function(feature, repository, request) {
             var d = new q.defer();
 
             uuid = common.isEmpty(uuid) ? request.user.company : uuid;
-            common.log(uuid);
-            var attributeController = common.getController("attribute");
-            attributeController.getAttributeValueGroupByCompanyFeature(uuid, feature).then(function(dataSet){
+            repository.getAllByCompany(uuid).then(function(dataSet){
                 if (common.isError(dataSet)){
                     d.resolve(common.getErrorObj("find_" + feature));
                 }else{

@@ -4,10 +4,10 @@ var attributeTypeController = common.getController('attribute_type');
 
 module.exports = function(repository, request) {
     return {
-        getAttributeGroupByFeature: function (feature) {
+        getAttributeGroupByFeature: function (feature, uuid) {
             var d = new q.defer();
             attributeTypeController.getAllAsDict().then(function(attributeTypeDict) {
-                repository.getAttributeGroupByFeature(feature).then(function (dataSet) {
+                repository.getAttributeGroupByFeature(feature, uuid).then(function (dataSet) {
                     if (common.isError(dataSet)) {
                         d.resolve(common.getResultObj({}));
                     } else {

@@ -3,20 +3,28 @@ var common = require("../libs/common");
 var conn = common.getLib('conn');
 module.exports = {
 
-    getAttributeGroupByFeature: function (feature) {
+    getAttributeGroupByFeature: function (feature, uuid) {
         var d = new q.defer();
 
         var query = "";
         query += " select";
         query += " ag.description 'group', a.uuid, a.description, a.order, a.size, cast(a.required as signed) 'required',";
         query += " a.attribute_type_uuid";
+        if (!common.isEmpty(uuid)){
+          query += " ,vfa.value";
+        }
         query += " from attribute a";
         query += " inner join attribute_group ag on a.attribute_group_uuid=ag.uuid";
         query += " inner join attribute_group_feature agf on ag.uuid=agf.attribute_group_uuid";
         query += " inner join feature f on f.uuid=agf.feature_uuid and f.description='" + feature + "'";
+        if (!common.isEmpty(uuid)){
+          query += " left join "+feature+"_attribute vfa on vfa.attribute_uuid=a.uuid and vfa."+feature+"_uuid='"+uuid+"' ";
+
+        }
         query += " order by ag.description, a.order";
 
         conn.query(query).then(function (dataSet) {
+          common.log(dataSet);
             d.resolve(dataSet);
         });
 
@@ -130,12 +138,13 @@ module.exports = {
         query += " inner join attribute_group ag on a.attribute_group_uuid=ag.uuid ";
         query += " inner join attribute_group_feature agf on ag.uuid=agf.attribute_group_uuid ";
         query += " inner join feature f on f.uuid=agf.feature_uuid and f.description='"+feature+"' ";
-        query += " inner join "+feature+" feat on feat.uuid = uf."+feature+"_uuid";
+        query += " inner join "+feature+" feat on feat.company_uuid = '"+company_uuid+"'";
         query += " left join "+feature+"_attribute vfa on vfa.attribute_uuid=a.uuid and vfa."+feature+"_uuid=feat.uuid ";
-        query += " where vfa.value is not null and feat.company_uuid='"+company_uuid+"' ";
+        query += " where vfa.value is not null";
         query += " order by feat.uuid,ag.description, a.order ";
 
         conn.query(query).then(function(dataSet){
+          common.log(dataSet);
             d.resolve(dataSet);
         });
         return d.promise;

@@ -88,7 +88,6 @@ module.exports = function(feature) {
         },
         getAllByCompany: function (company_uuid){
             var d = new q.defer();
-
             var attributeController = common.getController("attribute");
             attributeController.getAttributeValueGroupByCompanyFeature(company_uuid, feature).then(function(obj){
                 d.resolve(common.getResultObj(obj.data));

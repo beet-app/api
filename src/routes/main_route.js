@@ -191,6 +191,20 @@ module.exports = function (app, passport) {
         });
     });
 
+  router.get('/attribute/:feature/:uuid', function (req, res) {
+    var feature = req.params.feature;
+    var uuid = req.params.uuid;
+
+    var globalController = common.getController("attribute");
+
+    globalController.getAttributeGroupByFeature(feature, uuid).then(function (response) {
+      if (common.isError(response)) {
+        res.json(401, response);
+      } else {
+        res.send(200, response);
+      }
+    });
+  });
 
     /*
      -------------------------------
