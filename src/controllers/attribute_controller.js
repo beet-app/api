@@ -19,8 +19,6 @@ module.exports = function(repository, request) {
 
                             var attr = {};
                             for (var y = 0; y < dataSet.fields.length; y++) {
-                                if (dataSet.fields[y].name == 'group')
-                                    continue;
                                 if (dataSet.fields[y].name == "attribute_type_uuid") {
                                     attr["type"] = attributeTypeDict.data[dataSet.rows[x][dataSet.fields[y].name]];
                                 } else {
