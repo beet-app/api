@@ -94,7 +94,6 @@ module.exports = function (repository, request) {
                           for (var x=0 ; x<dataSetFeature.rows.length ; x++){
 
                             controller.getOne(dataSetFeature.rows[x].uuid).then(function(featureResponse){
-                              common.log(featureResponse);
                               arr.push(featureResponse.data);
                               if (arr.length==dataSetFeature.rows.length){
 
@@ -151,7 +150,7 @@ module.exports = function (repository, request) {
                 }
             });
 
-            d.promise();
+            d.promise;
         }
     };
     return controller;
