@@ -85,17 +85,19 @@ module.exports = function (repository, request) {
         },
         chooseCompany: function () {
             var d = new q.defer();
+            var ct = 0;
             var controller = common.getController("feature", request);
             repository.chooseCompany(request.user.data.uuid, request.data.company).then(function (dataSet) {
                 if (dataSet.rows.length > 0) {
                     repository.getFeatureByUserCompany(request.user.data.uuid, request.data.company).then(function (dataSetFeature) {
                         if (dataSetFeature.rows.length > 0) {
-                          var arr = [];
+                          var arr = new Array(dataSetFeature.rows.length-1);
                           for (var x=0 ; x<dataSetFeature.rows.length ; x++){
 
                             controller.getOne(dataSetFeature.rows[x].uuid).then(function(featureResponse){
-                              arr.push(featureResponse.data);
-                              if (arr.length==dataSetFeature.rows.length){
+                              arr[featureResponse.data.order-1] = featureResponse.data;
+                              ct++;
+                              if (ct==dataSetFeature.rows.length){
 
                                 d.resolve(common.getResultObj(arr));
                               }
