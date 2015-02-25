@@ -95,17 +95,41 @@ module.exports = function(feature) {
 
             return d.promise;
         },
-      getAll: function (queryBuilder) {
-        var d = new q.defer();
+        getAll: function (queryBuilder) {
+            var d = new q.defer();
 
-        conn.query("select * from "+queryBuilder.table).then(function (featureDataSet) {
-            d.resolve(featureDataSet);
-        });
+            conn.query("select * from "+queryBuilder.table).then(function (featureDataSet) {
+                d.resolve(featureDataSet);
+            });
 
-        return d.promise;
+            return d.promise;
 
-      }
+        },
+        getAllByFilteredAttributes: function (obj) {
+            var d = new q.defer();
 
+            var query = "";
+            query += " select a.uuid";
+            query += " from " + feature + " a";
+            query += " inner join " + feature + "_attribute b on (b."+feature+"_uuid = a.uuid)";
+            query += " inner join attribute c on (c.uuid = b.attribute_uuid)";
+            query += " where 1 = 1";
 
+            var arr = common.turnToArray(obj);
+
+            for (var x = 0 ; x < arr.length ; x++){
+                var fields = "";
+                var values = "";
+                for (var key in arr[x]) {
+                    query += " and (c.description = '" + key + "' and b.value = '" + arr[x][key] + "')";
+                }
+            }
+
+            conn.query(query).then(function (dataSet) {
+                d.resolve(common.getResultObj(dataSet));
+            });
+
+            return d.promise;
+        }
     }
-}
+};
