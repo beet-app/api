@@ -126,7 +126,8 @@ module.exports = function(feature) {
             }
 
             conn.query(query).then(function (dataSet) {
-                d.resolve(common.getResultObj(dataSet));
+
+
             });
 
             return d.promise;

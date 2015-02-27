@@ -67,8 +67,6 @@ module.exports = {
             }else{
                 strUuidFilter+= ",'" + arrCollection[x].uuid + "'";
             }
-
-
         }
 
         var query = "";

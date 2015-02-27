@@ -58,15 +58,22 @@ module.exports = function(repository, request) {
         getAttributeValueGroupByFeatureCollection: function (feature, arrCollection) {
             var d = new q.defer();
 
-            strUuidFilter = "";
+            repository.getAttributeValueGroupByFeatureCollection(feature, arrCollection).then(function(dataSet){
+                if(common.isError(dataSet)){
+                    d.resolve(common.getErrorObj("find_attribute_collection"));
+                }
+                else{
+                    d.resolve(common.getResultObj(obj));
+                }
+            });
+
+            /*strUuidFilter = "";
             for (var x=0; x< arrCollection.length ; x++){
                 if (strUuidFilter==="") {
                     strUuidFilter+= "'" + arrCollection[x].uuid + "'";
                 }else{
                     strUuidFilter+= ",'" + arrCollection[x].uuid + "'";
                 }
-
-
             }
 
             var query = "";
@@ -100,7 +107,7 @@ module.exports = function(repository, request) {
                 }else{
                     d.resolve(null);
                 }
-            });
+            });*/
             return d.promise;
         },
 
