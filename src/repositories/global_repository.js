@@ -111,23 +111,20 @@ module.exports = function(feature) {
             var query = "";
             query += " select a.uuid";
             query += " from " + feature + " a";
-            query += " inner join " + feature + "_attribute b on (b."+feature+"_uuid = a.uuid)";
-            query += " inner join attribute c on (c.uuid = b.attribute_uuid)";
+            /*query += " inner join " + feature + "_attribute b on (b."+feature+"_uuid = a.uuid)";
+            query += " inner join attribute c on (c.uuid = b.attribute_uuid)";*/
             query += " where 1 = 1";
 
             var arr = common.turnToArray(obj);
 
             for (var x = 0 ; x < arr.length ; x++){
-                var fields = "";
-                var values = "";
                 for (var key in arr[x]) {
-                    query += " and (c.description = '" + key + "' and b.value = '" + arr[x][key] + "')";
+                    query += " and (a." + key + "_uuid = '" + arr[x][key] + "')";
                 }
             }
 
             conn.query(query).then(function (dataSet) {
-
-
+                d.resolve(dataSet);
             });
 
             return d.promise;

@@ -82,7 +82,7 @@ module.exports = {
 
         var ct = -1;
         var old_uuid = "";
-        conn.freeQuery(query).then(function(dataSet){
+        conn.query(query).then(function(dataSet){
             if (dataSet.rows.length>0){
                 for (var x=0 ; x<dataSet.rows.length ; x++){
                     if (dataSet.rows[x].feature_uuid != old_uuid){

@@ -206,20 +206,26 @@ module.exports = function(feature, repository, request) {
             var d = new q.defer();
 
             repository.getAllByFilteredAttributes(request.data).then(function(dataSet){
-
                 if (common.isError(dataSet)){
                     d.resolve(common.getErrorObj("find_" + feature));
                 }else{
-                    var arrDataSet = common.turnToArray(dataSet);
-                    var attributeController = common.getController("attribute");
-                    attributeController.getAttributeValueGroupByFeatureCollection(feature, arrDataSet).then(function(obj){
+                    if(dataSet.rows.length>0){
+                        var arrDataSet = common.turnToArray(dataSet.rows);
+                        var attributeController = common.getController("attribute");
 
-                        if(common.getErrorObj(obj)){
-                            d.resolve(common.getErrorObj("find_" + feature + "_attributes"));
-                        }else{
-                            d.resolve(common.getResultObj(obj.data));
-                        }
-                    });
+                        attributeController.getAttributeValueGroupByFeatureCollection(feature, arrDataSet).then(function(obj){
+                            console.log(obj);
+
+                            if(common.isError(obj)){
+                                d.resolve(common.getErrorObj("find_" + feature + "_attributes"));
+                            }else{
+                                d.resolve(common.getResultObj(obj.data));
+                            }
+                        });
+                    }
+                    else{
+                        d.resolve(common.getResultObj([]));
+                    }
                 }
             });
 
