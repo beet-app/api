@@ -112,7 +112,6 @@ module.exports = function (app, passport) {
                 res.send(200, response);
             }
         });
-
     });
     router.get("/:feature", function (req, res) {
         var globalController = common.getController(req.params.feature, req);
@@ -124,7 +123,6 @@ module.exports = function (app, passport) {
                 res.send(200, response);
             }
         });
-
     });
     router.get("/1/:feature", function (req, res) {
         var globalController = common.getController(req.params.feature, req);
