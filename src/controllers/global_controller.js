@@ -201,8 +201,35 @@ module.exports = function(feature, repository, request) {
             });
 
             return d.promise;
+        },
+        getAllByFilteredAttributes: function (){
+            var d = new q.defer();
+
+            repository.getAllByFilteredAttributes(request.data).then(function(dataSet){
+                if (common.isError(dataSet)){
+                    d.resolve(common.getErrorObj("find_" + feature));
+                }else{
+                    if(dataSet.rows.length>0){
+                        var arrDataSet = common.turnToArray(dataSet.rows);
+                        var attributeController = common.getController("attribute");
+
+                        attributeController.getAttributeValueGroupByFeatureCollection(feature, arrDataSet).then(function(obj){
+                            console.log(obj);
+
+                            if(common.isError(obj)){
+                                d.resolve(common.getErrorObj("find_" + feature + "_attributes"));
+                            }else{
+                                d.resolve(common.getResultObj(obj.data));
+                            }
+                        });
+                    }
+                    else{
+                        d.resolve(common.getResultObj([]));
+                    }
+                }
+            });
+
+            return d.promise;
         }
-
-
     }
-}
+};

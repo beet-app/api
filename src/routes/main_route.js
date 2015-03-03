@@ -53,7 +53,6 @@ module.exports = function (app, passport) {
 
     });
 
-
     router.post('/company/choose', isLoggedIn,passport.authenticate('choose-company'),
         function (req, res) {
 
@@ -113,7 +112,6 @@ module.exports = function (app, passport) {
                 res.send(200, response);
             }
         });
-
     });
     router.get("/:feature", function (req, res) {
         var globalController = common.getController(req.params.feature, req);
@@ -125,7 +123,6 @@ module.exports = function (app, passport) {
                 res.send(200, response);
             }
         });
-
     });
     router.get("/1/:feature", function (req, res) {
         var globalController = common.getController(req.params.feature, req);
@@ -164,6 +161,19 @@ module.exports = function (app, passport) {
         });
 
     });
+
+    router.post("/:feature/all-by-attributes", function (req, res) {
+        var globalController = common.getController(req.params.feature, req);
+
+        globalController.getAllByFilteredAttributes().then(function (response) {
+            if (common.isError(response)) {
+                res.json(401, response);
+            } else {
+                res.send(200, response);
+            }
+        });
+    });
+
     router.delete("/:feature", function (req, res) {
         var globalController = common.getController(req.params.feature, req);
 
@@ -191,20 +201,20 @@ module.exports = function (app, passport) {
         });
     });
 
-  router.get('/attribute/:feature/:uuid', function (req, res) {
-    var feature = req.params.feature;
-    var uuid = req.params.uuid;
+    router.get('/attribute/:feature/:uuid', function (req, res) {
+        var feature = req.params.feature;
+        var uuid = req.params.uuid;
 
-    var globalController = common.getController("attribute");
+        var globalController = common.getController("attribute");
 
-    globalController.getAttributeGroupByFeature(feature, uuid).then(function (response) {
-      if (common.isError(response)) {
-        res.json(401, response);
-      } else {
-        res.send(200, response);
-      }
+        globalController.getAttributeGroupByFeature(feature, uuid).then(function (response) {
+            if (common.isError(response)) {
+                res.json(401, response);
+            } else {
+                res.send(200, response);
+            }
+        });
     });
-  });
 
     /*
      -------------------------------
@@ -244,9 +254,8 @@ module.exports = function (app, passport) {
         }
     );
 
-
     return router;
-}
+};
 
 // route middleware to make sure
 function isLoggedIn(req, res, next) {
@@ -255,4 +264,3 @@ function isLoggedIn(req, res, next) {
     else
         next();
 }
-
