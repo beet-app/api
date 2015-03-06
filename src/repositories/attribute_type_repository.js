@@ -12,7 +12,19 @@ module.exports = {
       });
 
       return d.promise;
+    },
+    getAllOptionsAsDict: function () {
+
+        var d = new q.defer();
+
+        conn.query("select * from attribute_type_option").then(function(dataSet){
+            d.resolve(dataSet);
+        });
+
+        return d.promise;
     }
+
+
 
 
 };
