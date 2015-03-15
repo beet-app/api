@@ -6,6 +6,7 @@ module.exports = {
         'http://177.72.244.6',
         'http://beet.cc',
         'http://beet.com.br',
+        'http://app.beet.com.br',
         'http://192.168.16.58:9000',
         'http://127.0.0.1:3000',
         'http://localhost:3000',
