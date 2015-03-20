@@ -75,30 +75,62 @@ module.exports = function(repository, request) {
             var ct = -1;
             var old_uuid = "";
             var arr = [];
-            var group, description, value;
-            repository.getAttributeValueGroupByUserFeature(user_uuid, feature).then(function(dataSet){
+            var group, description, value, sequence;
+
+	        var multiple = (common.getSchema(feature).fields.attribute.multiple===true);
+
+            repository.getAttributeValueGroupByUserFeature(user_uuid, feature, multiple).then(function(dataSet){
 
                 if (dataSet.rows.length>0){
-                    for (var x=0 ; x<dataSet.rows.length ; x++){
-                        group = dataSet.rows[x].attribute_group;
-                        description = dataSet.rows[x].attribute_description;
-                        value = dataSet.rows[x].attribute_value;
-                        if (dataSet.rows[x].uuid != old_uuid){
-                            ct++;
-                            old_uuid = dataSet.rows[x].uuid;
-                            arr[ct] = dataSet.rows[x];
-                            delete arr[ct].attribute_group;
-                            delete arr[ct].attribute_description;
-                            delete arr[ct].attribute_value;
-                            arr[ct].attributes = {};
-                        }
-                        if (!arr[ct].attributes[group]){
-                            arr[ct].attributes[group] = {};
-                        }
+	                if (multiple){
+		                for (var x=0 ; x<dataSet.rows.length ; x++){
+			                group = dataSet.rows[x].attribute_group;
+			                description = dataSet.rows[x].attribute_description;
+			                value = dataSet.rows[x].attribute_value;
+			                sequence = dataSet.rows[x].sequence;
+			                if (dataSet.rows[x].uuid != old_uuid){
+				                ct++;
+				                old_uuid = dataSet.rows[x].uuid;
+				                arr[ct] = dataSet.rows[x];
+				                delete arr[ct].attribute_group;
+				                delete arr[ct].attribute_description;
+				                delete arr[ct].attribute_value;
+				                arr[ct].attributes = {};
+			                }
+			                if (!arr[ct].attributes[group]){
+				                arr[ct].attributes[group] = {};
+			                }
+			                if (!arr[ct].attributes[group][description]) {
+				                arr[ct].attributes[group][description] = [];
+			                }
+			                arr[ct].attributes[group][description].push({sequence:sequence,value:value});
 
-                        arr[ct].attributes[group][description] = value;
+		                }
+	                }else{
+		                for (var x=0 ; x<dataSet.rows.length ; x++){
+			                group = dataSet.rows[x].attribute_group;
+			                description = dataSet.rows[x].attribute_description;
+			                value = dataSet.rows[x].attribute_value;
+			                if (dataSet.rows[x].uuid != old_uuid){
+				                ct++;
+				                old_uuid = dataSet.rows[x].uuid;
+				                arr[ct] = dataSet.rows[x];
+				                delete arr[ct].attribute_group;
+				                delete arr[ct].attribute_description;
+				                delete arr[ct].attribute_value;
+				                arr[ct].attributes = {};
+			                }
+			                if (!arr[ct].attributes[group]){
+				                arr[ct].attributes[group] = {};
+			                }
 
-                    }
+			                arr[ct].attributes[group][description] = value;
+
+		                }
+	                }
+
+
+
 
 
                 }
@@ -113,31 +145,63 @@ module.exports = function(repository, request) {
             var ct = -1;
             var old_uuid = "";
             var arr = [];
-            var group, description, value;
-            repository.getAttributeValueGroupByCompanyFeature(company_uuid, feature).then(function(dataSet){
+            var group, description, value, sequence;
+	        var multiple = (common.getSchema(feature).fields.attribute.multiple===true);
+
+
+	        repository.getAttributeValueGroupByCompanyFeature(company_uuid, feature, multiple).then(function(dataSet){
 
                 if (dataSet.rows.length>0){
-                    for (var x=0 ; x<dataSet.rows.length ; x++){
-                        group = dataSet.rows[x].attribute_group;
-                        description = dataSet.rows[x].attribute_description;
-                        value = dataSet.rows[x].attribute_value;
-                        if (dataSet.rows[x].uuid != old_uuid){
-                            ct++;
-                            old_uuid = dataSet.rows[x].uuid;
-                            arr[ct] = dataSet.rows[x];
-                            delete arr[ct].attribute_group;
-                            delete arr[ct].attribute_description;
-                            delete arr[ct].attribute_value;
-                            arr[ct].attributes = {};
-                        }
-                        if (!arr[ct].attributes[group]){
-                            arr[ct].attributes[group] = {};
-                        }
+	                if (multiple){
 
-                        arr[ct].attributes[group][description] = value;
+		                for (var x = 0; x < dataSet.rows.length; x++) {
+			                group = dataSet.rows[x].attribute_group;
+			                description = dataSet.rows[x].attribute_description;
+			                value = dataSet.rows[x].attribute_value;
+			                sequence = dataSet.rows[x].sequence;
+			                if (dataSet.rows[x].uuid != old_uuid) {
+				                ct++;
+				                old_uuid = dataSet.rows[x].uuid;
+				                arr[ct] = dataSet.rows[x];
+				                delete arr[ct].attribute_group;
+				                delete arr[ct].attribute_description;
+				                delete arr[ct].attribute_value;
+				                arr[ct].attributes = {};
+			                }
+			                if (!arr[ct].attributes[group]) {
+				                arr[ct].attributes[group] = {};
+			                }
+			                if (!arr[ct].attributes[group][description]) {
+				                arr[ct].attributes[group][description] = [];
+			                }
 
-                    }
+			                arr[ct].attributes[group][description].push({sequence:sequence,value:value});
 
+		                }
+
+	                }else {
+
+		                for (var x = 0; x < dataSet.rows.length; x++) {
+			                group = dataSet.rows[x].attribute_group;
+			                description = dataSet.rows[x].attribute_description;
+			                value = dataSet.rows[x].attribute_value;
+			                if (dataSet.rows[x].uuid != old_uuid) {
+				                ct++;
+				                old_uuid = dataSet.rows[x].uuid;
+				                arr[ct] = dataSet.rows[x];
+				                delete arr[ct].attribute_group;
+				                delete arr[ct].attribute_description;
+				                delete arr[ct].attribute_value;
+				                arr[ct].attributes = {};
+			                }
+			                if (!arr[ct].attributes[group]) {
+				                arr[ct].attributes[group] = {};
+			                }
+
+			                arr[ct].attributes[group][description] = value;
+
+		                }
+	                }
 
                 }
                 d.resolve(common.getResultObj(arr));

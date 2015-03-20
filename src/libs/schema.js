@@ -101,16 +101,23 @@ module.exports = function(feature){
 
             for (key in obj){
                 if (typeof(obj[key])=="object"){
-                    arrIndexes = schema.fields[key].table.split("_");
-                    for (var x=0 ; x<arrIndexes.length ; x++){
-                        arrIndexes[x] = arrIndexes[x] + "_uuid";
-                    }
+	                if (schema.fields[key].table.indexOf("attribute")>0){
+		                arrIndexes = ["attribute_uuid",feature+"_uuid"];
+		                if (schema.fields.attribute.multiple){
+			                arrIndexes.push("sequence");
+		                }
+	                }else{
+		                arrIndexes = schema.fields[key].table.split("_");
+		                for (var x=0 ; x<arrIndexes.length ; x++){
+			                arrIndexes[x] = arrIndexes[x] + "_uuid";
+		                }
+	                }
+
                     children.push({table:schema.fields[key].table,indexes:arrIndexes,fields:obj[key]});
                 }else{
                     parent.fields[key] = obj[key];
                 }
             }
-
             if (children.length>0){
                 return {parent:parent, children:children};
             }else{
@@ -156,7 +163,9 @@ module.exports = function(feature){
                                     children[feature + "_uuid"] = obj.uuid;
                                     children["attribute_uuid"] = arrChildren[x].attribute;
                                     children["value"] = arrChildren[x].value;
-
+									if (!common.isEmpty(arrChildren[x].sequence)){
+										children["sequence"] = arrChildren[x].sequence;
+									}
                                 }else if (childrenSchema!=null){
                                     arrChildren[x][feature] = obj.uuid;
                                     children = this.merge(arrChildren[x], childrenSchema)

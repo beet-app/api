@@ -103,50 +103,66 @@ module.exports = {
         });
         return d.promise;
     },
+	getAttributeValueGroupByUserFeature: function (user_uuid, feature, multiple) {
+		var d = new q.defer();
 
-    getAttributeValueGroupByUserFeature: function (user_uuid, feature) {
-        var d = new q.defer();
+		var query = "";
+		query += " select ";
+		query += " feat.*, ag.description 'attribute_group', a.description 'attribute_description', vfa.value 'attribute_value'";
+		if (multiple){
+			query += ", vfa.sequence ";
+		}
+		query += " from attribute a ";
+		query += " inner join attribute_group ag on a.attribute_group_uuid=ag.uuid ";
+		query += " inner join attribute_group_feature agf on ag.uuid=agf.attribute_group_uuid ";
+		query += " inner join feature f on f.uuid=agf.feature_uuid and f.description='"+feature+"' ";
+		query += " inner join user_"+feature+" uf on uf.user_uuid = '"+user_uuid+"'";
+		query += " inner join "+feature+" feat on feat.uuid = uf."+feature+"_uuid";
+		query += " left join "+feature+"_attribute vfa on vfa.attribute_uuid=a.uuid and vfa."+feature+"_uuid=feat.uuid ";
+		query += " where vfa.value is not null ";
+		if (multiple){
+			query += " order by feat.uuid,ag.description, a.order, vfa.sequence";
+		}else{
+			query += " order by feat.uuid,ag.description, a.order";
 
-        var query = "";
-        query += " select ";
-        query += " feat.*, ag.description 'attribute_group', a.description 'attribute_description', vfa.value 'attribute_value'";
-        query += " from attribute a ";
-        query += " inner join attribute_group ag on a.attribute_group_uuid=ag.uuid ";
-        query += " inner join attribute_group_feature agf on ag.uuid=agf.attribute_group_uuid ";
-        query += " inner join feature f on f.uuid=agf.feature_uuid and f.description='"+feature+"' ";
-        query += " inner join user_"+feature+" uf on uf.user_uuid = '"+user_uuid+"'";
-        query += " inner join "+feature+" feat on feat.uuid = uf."+feature+"_uuid";
-        query += " left join "+feature+"_attribute vfa on vfa.attribute_uuid=a.uuid and vfa."+feature+"_uuid=feat.uuid ";
-        query += " where vfa.value is not null ";
-        query += " order by feat.uuid,ag.description, a.order ";
+		}
 
-        conn.query(query).then(function(dataSet){
-            d.resolve(dataSet);
-        });
-        return d.promise;
-    },
 
-    getAttributeValueGroupByCompanyFeature: function (company_uuid, feature) {
-        var d = new q.defer();
+		conn.query(query).then(function(dataSet){
+			d.resolve(dataSet);
+		});
+		return d.promise;
+	},
 
-        var query = "";
-        query += " select ";
-        query += " feat.*, ag.description 'attribute_group', a.description 'attribute_description', vfa.value 'attribute_value'";
-        query += " from attribute a ";
-        query += " inner join attribute_group ag on a.attribute_group_uuid=ag.uuid ";
-        query += " inner join attribute_group_feature agf on ag.uuid=agf.attribute_group_uuid ";
-        query += " inner join feature f on f.uuid=agf.feature_uuid and f.description='"+feature+"' ";
-        query += " inner join "+feature+" feat on feat.company_uuid = '"+company_uuid+"'";
-        query += " left join "+feature+"_attribute vfa on vfa.attribute_uuid=a.uuid and vfa."+feature+"_uuid=feat.uuid ";
-        query += " where vfa.value is not null";
-        query += " order by feat.uuid,ag.description, a.order ";
+	getAttributeValueGroupByCompanyFeature: function (company_uuid, feature, multiple) {
+		var d = new q.defer();
 
-        conn.query(query).then(function(dataSet){
-          common.log(dataSet);
-            d.resolve(dataSet);
-        });
-        return d.promise;
-    }
+		var query = "";
+		query += " select ";
+		query += " feat.*, ag.description 'attribute_group', a.description 'attribute_description', vfa.value 'attribute_value'";
+		if (multiple){
+			query += ", vfa.sequence ";
+		}
+		query += " from attribute a ";
+		query += " inner join attribute_group ag on a.attribute_group_uuid=ag.uuid ";
+		query += " inner join attribute_group_feature agf on ag.uuid=agf.attribute_group_uuid ";
+		query += " inner join feature f on f.uuid=agf.feature_uuid and f.description='"+feature+"' ";
+		query += " inner join "+feature+" feat on feat.company_uuid = '"+company_uuid+"'";
+		query += " left join "+feature+"_attribute vfa on vfa.attribute_uuid=a.uuid and vfa."+feature+"_uuid=feat.uuid ";
+		query += " where vfa.value is not null";
+		if (multiple){
+			query += " order by feat.uuid,ag.description, a.order, vfa.sequence ";
+		}else{
+			query += " order by feat.uuid,ag.description, a.order ";
+
+		}
+
+		conn.query(query).then(function(dataSet){
+			common.log(dataSet);
+			d.resolve(dataSet);
+		});
+		return d.promise;
+	}
 }
 
 

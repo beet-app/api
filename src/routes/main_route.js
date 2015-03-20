@@ -90,9 +90,8 @@ module.exports = function (app, passport) {
         });
 
     });
-    router.post("/:feature/create", isLoggedIn, function (req, res) {
+    router.post("/:feature/create", function (req, res) {
         var globalController = common.getController(req.params.feature, req);
-
         globalController.save("create").then(function (response) {
             if (common.isError(response)) {
                 res.json(401, response);
@@ -161,6 +160,30 @@ module.exports = function (app, passport) {
         });
 
     });
+	router.get("/:feature/all-by-person", function (req, res) {
+		var globalController = common.getController(req.params.feature, req);
+
+		globalController.getAllByPerson().then(function (response) {
+			if (common.isError(response)) {
+				res.json(401, response);
+			} else {
+				res.send(200, response);
+			}
+		});
+
+	});
+	router.get("/:feature/all-by-company", function (req, res) {
+		var globalController = common.getController(req.params.feature, req);
+
+		globalController.getAllByCompany().then(function (response) {
+			if (common.isError(response)) {
+				res.json(401, response);
+			} else {
+				res.send(200, response);
+			}
+		});
+
+	});
 
     router.post("/:feature/all-by-attributes", function (req, res) {
         var globalController = common.getController(req.params.feature, req);
@@ -264,3 +287,4 @@ function isLoggedIn(req, res, next) {
     else
         next();
 }
+

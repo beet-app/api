@@ -94,6 +94,7 @@ module.exports = function(feature, repository, request) {
                 }else{
                     var data = request.data;
                     var arr = common.turnToArray(data);
+
                     var ct = 0;
                     for(var key in arr){
                         var validateObj = validate.validate(arr[key]);
@@ -189,7 +190,6 @@ module.exports = function(feature, repository, request) {
         },
         getAllByCompany: function (uuid){
             var d = new q.defer();
-
             uuid = common.isEmpty(uuid) ? request.user.company : uuid;
             repository.getAllByCompany(uuid).then(function(dataSet){
                 if (common.isError(dataSet)){
@@ -214,7 +214,6 @@ module.exports = function(feature, repository, request) {
                         var attributeController = common.getController("attribute");
 
                         attributeController.getAttributeValueGroupByFeatureCollection(feature, arrDataSet).then(function(obj){
-                            console.log(obj);
 
                             if(common.isError(obj)){
                                 d.resolve(common.getErrorObj("find_" + feature + "_attributes"));

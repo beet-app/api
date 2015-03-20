@@ -6,7 +6,7 @@ module.exports = function (repository, request) {
         find: function () {
             var d = new q.defer();
 
-            var controller = common.getController("person",request);
+            var controller = common.getController("expense_company",request);
 
             d.resolve(controller.getAllByCompany());
 

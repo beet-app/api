@@ -88,7 +88,6 @@ var lib = {
     save: function (obj, mode) {
 
         var d = new q.defer();
-
         mode = (common.isEmpty(mode)) ? "save" : mode.toLowerCase();
 
         var parent = (obj.parent) ? obj.parent : obj;
@@ -128,7 +127,6 @@ var lib = {
 
     },
     saveChildren: function (children) {
-
         var d = new q.defer();
 
         var sql = "";
