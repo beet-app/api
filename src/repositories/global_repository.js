@@ -95,6 +95,15 @@ module.exports = function(feature) {
 
             return d.promise;
         },
+        getAllByPerson: function (company_uuid){
+            var d = new q.defer();
+            var attributeController = common.getController("attribute");
+            attributeController.getAttributeValueGroupByPersonFeature(company_uuid, feature).then(function(obj){
+                d.resolve(common.getResultObj(obj.data));
+            });
+
+            return d.promise;
+        },
         getAll: function (queryBuilder) {
             var d = new q.defer();
 

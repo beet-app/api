@@ -5,8 +5,12 @@ var schema = {
             table: "company"
         },
         attribute:{
-            table: "expense_company_attribute",
-	        multiple:true
+            table: "expense_company_attribute"
+        }
+    },
+    detail:{
+        attribute:{
+            table: "expense_company_detail_attribute"
         }
     }
 

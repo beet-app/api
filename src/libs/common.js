@@ -67,6 +67,9 @@ var lib = {
         var bcrypt = require('bcrypt-nodejs');
         return bcrypt.hashSync(value, bcrypt.genSaltSync(8), null);
     },
+    hasDetail: function(obj){
+        return !(lib.isEmpty(obj.detail));
+    },
     inArray : function(value, arr) {
         for(var i = 0; i < arr.length; i++) {
             if(arr[i] == value) return true;

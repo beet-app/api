@@ -8,12 +8,10 @@ var debug=false;
 var lib = {
     query: function (query) {
         var d = new q.defer();
-
         if (debug){
             d.resolve({error:null, rows:{}, fields:{}});
         }else{
             var connection = mysql.createConnection(config);
-
             connection.connect();
             connection.query(query, function(error, rows, fields) {
                 connection.end();
