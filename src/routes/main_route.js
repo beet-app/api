@@ -123,6 +123,17 @@ module.exports = function (app, passport) {
             }
         });
     });
+	router.get("/:feature/:uuid", function (req, res) {
+		var globalController = common.getController(req.params.feature, req);
+
+		globalController.find().then(function (response) {
+			if (common.isError(response)) {
+				res.json(401, response);
+			} else {
+				res.send(200, response);
+			}
+		});
+	});
     router.get("/1/:feature", function (req, res) {
         var globalController = common.getController(req.params.feature, req);
 

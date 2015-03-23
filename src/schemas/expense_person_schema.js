@@ -1,7 +1,7 @@
 var schema = {
     fields:{
         uuid : "string",
-        company:{
+        person:{
             table: "person"
         },
         attribute:{

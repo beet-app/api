@@ -202,6 +202,20 @@ module.exports = function(feature, repository, request) {
 
             return d.promise;
         },
+	    getAllByPerson: function (uuid){
+		    var d = new q.defer();
+		    uuid = common.isEmpty(uuid) ? request.params.uuid : uuid;
+		    repository.getAllByPerson(uuid).then(function(dataSet){
+			    if (common.isError(dataSet)){
+				    d.resolve(common.getErrorObj("find_" + feature));
+			    }else{
+				    d.resolve(common.getResultObj(dataSet.data));
+			    }
+
+		    });
+
+		    return d.promise;
+	    },
         getAllByFilteredAttributes: function (){
             var d = new q.defer();
 

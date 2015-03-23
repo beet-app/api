@@ -43,9 +43,9 @@ module.exports = {
         query += " from attribute a";
         query += " inner join attribute_group ag on a.attribute_group_uuid=ag.uuid";
         query += " inner join attribute_group_detail agd on ag.uuid=agd.attribute_group_uuid";
-        query += " inner join detail d on d.uuid=agd.detail_uuid and f.description='" + feature + "'";
+        query += " inner join detail d on d.uuid=agd.detail_uuid and d.description='" + feature + "_detail'";
         if (!common.isEmpty(uuid)){
-            query += " left join "+feature+"_detail_attribute vfa on vfa.attribute_uuid=a.uuid and vfa."+feature+"_uuid='"+uuid+"' ";
+            query += " left join "+feature+"_detail_attribute vfa on vfa.attribute_uuid=a.uuid and vfa."+feature+"_detail_uuid='"+uuid+"' ";
 
         }
         query += " order by ag.description, a.order";

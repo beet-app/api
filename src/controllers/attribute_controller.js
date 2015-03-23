@@ -6,6 +6,7 @@ module.exports = function(repository, request) {
     var controller =  {
         getAttributeGroupByFeature: function (feature, uuid) {
             var d = new q.defer();
+	        var hasDetail = common.hasDetail(common.getSchema(feature));
             attributeTypeController.getAllAsDict().then(function(attributeTypeDict) {
                 repository.getAttributeGroupByFeature(feature, uuid).then(function (dataSet) {
                     if (common.isError(dataSet)) {
@@ -27,7 +28,16 @@ module.exports = function(repository, request) {
                             }
                             obj[dataSet.rows[x].group].push(attr);
                         }
-                        d.resolve(common.getResultObj(obj));
+	                    if (hasDetail){
+		                    controller.getDetailAttributeValueGroupByFeature(feature, uuid, attributeTypeDict).then(function(detailData){
+			                    if (!common.isError(detailData)) {
+				                    obj.detail = detailData.data;
+			                    }
+			                    d.resolve(common.getResultObj(obj));
+		                    });
+	                    }else{
+		                    d.resolve(common.getResultObj(obj));
+	                    }
                     }
                 });
             });
@@ -37,7 +47,6 @@ module.exports = function(repository, request) {
         getAttributeValueGroupByFeature: function (feature, uuid) {
             var d = new q.defer();
             var hasDetail = common.hasDetail(common.getSchema(feature));
-
             repository.getAttributeValueGroupByFeature(feature, uuid).then(function(dataSet){
                 if (common.isError(dataSet)){
                     d.resolve(common.getErrorObj("find_attribute"));
@@ -49,23 +58,14 @@ module.exports = function(repository, request) {
                         }
                         obj[dataSet.rows[x].group][dataSet.rows[x].description] = dataSet.rows[x].value;
                     }
-                    if (hasDetail){
-                        controller.getDetailAttributeValueGroupByFeature(feature, uuid).then(function(detailData){
-                            if (!common.isError(detailData)) {
-                                obj.detail = detailData.data;
-                            }
-                            d.resolve(common.getResultObj(obj));
-                        });
-                    }else{
-                        d.resolve(common.getResultObj(obj));
-                    }
+	                d.resolve(common.getResultObj(obj));
 
                 }
 
             });
             return d.promise;
         },
-        getDetailAttributeValueGroupByFeature: function (feature, uuid) {
+        getDetailAttributeValueGroupByFeature: function (feature, uuid, attributeTypeDict) {
             var d = new q.defer();
             var hasDetail = common.hasDetail(common.getSchema(feature));
 
@@ -75,14 +75,22 @@ module.exports = function(repository, request) {
                 }else{
 
 
+	                var obj = {};
+	                for (var x = 0; x < dataSet.rows.length; x++) {
+		                if (!obj[dataSet.rows[x].group]) {
+			                obj[dataSet.rows[x].group]=[];
+		                }
 
-                    var obj = {};
-                    for (var x=0 ; x<dataSet.rows.length ; x++){
-                        if (!obj[dataSet.rows[x].group]){
-                            obj[dataSet.rows[x].group] = {};
-                        }
-                        obj[dataSet.rows[x].group][dataSet.rows[x].description] = dataSet.rows[x].value;
-                    }
+		                var attr = {};
+		                for (var y = 0; y < dataSet.fields.length; y++) {
+			                if (dataSet.fields[y].name == "attribute_type_uuid") {
+				                attr["type"] = attributeTypeDict.data[dataSet.rows[x][dataSet.fields[y].name]];
+			                } else {
+				                attr[dataSet.fields[y].name] = dataSet.rows[x][dataSet.fields[y].name];
+			                }
+		                }
+		                obj[dataSet.rows[x].group].push(attr);
+	                }
 
                     d.resolve(common.getResultObj(obj));
 
