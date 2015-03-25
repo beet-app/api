@@ -1,11 +1,11 @@
 var schema = {
     fields:{
         uuid : "string",
-        company:{
-            table: "company"
+	    expense_person:{
+            table: "expense_person"
         },
         attribute:{
-            table: "expense_company_attribute"
+            table: "expense_person_detail_attribute"
         }
     }
 

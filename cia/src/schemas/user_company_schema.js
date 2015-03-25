@@ -1,14 +1,14 @@
 var schema = {
     fields:{
-        uuid : "string",
         company:{
             table: "company"
         },
-        attribute:{
-            table: "expense_company_attribute"
+        user:{
+            table: "user"
+        },
+        profile:{
+            table: "profile"
         }
     }
-
 };
 module.exports = schema;
-

@@ -7,6 +7,11 @@ var schema = {
         attribute:{
             table: "expense_company_attribute"
         }
+    },
+    detail:{
+        attribute:{
+            table: "expense_company_detail_attribute"
+        }
     }
 
 };

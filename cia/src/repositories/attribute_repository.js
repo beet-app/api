@@ -24,6 +24,7 @@ module.exports = {
         query += " order by ag.description, a.order";
 
         conn.query(query).then(function (dataSet) {
+            common.log(dataSet);
             d.resolve(dataSet);
         });
 
@@ -59,6 +60,7 @@ module.exports = {
     getAttributeValueGroupByFeature: function (feature, uuid) {
         var d = new q.defer();
         var featureSchema = common.getSchema(feature);
+        common.log(featureSchema);
         if (common.isEmpty(featureSchema.fields.attribute)){
             d.resolve(conn.getEmptyDataSet());
         }else{

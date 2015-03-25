@@ -369,8 +369,6 @@ module.exports = function(repository, request) {
                         d.resolve(common.getResultObj(arr));
                     }
 
-                }else{
-	                d.resolve(common.getResultObj([]));
                 }
             });
             return d.promise;

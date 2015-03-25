@@ -112,17 +112,6 @@ module.exports = function (app, passport) {
             }
         });
     });
-	router.post("/:feature/save", function (req, res) {
-		var globalController = common.getController(req.params.feature, req);
-
-		globalController.save("save").then(function (response) {
-			if (common.isError(response)) {
-				res.json(401, response);
-			} else {
-				res.send(200, response);
-			}
-		});
-	});
     router.get("/:feature", function (req, res) {
         var globalController = common.getController(req.params.feature, req);
 
@@ -233,18 +222,17 @@ module.exports = function (app, passport) {
     });
 
     router.get('/attribute/:feature', function (req, res) {
-	    var feature = req.params.feature;
-	    var uuid = req.params.uuid;
+        var feature = req.params.feature;
 
-	    var globalController = common.getController("attribute");
+        var globalController = common.getController(feature, req);
 
-	    globalController.getAttributeGroupByFeature(feature, uuid).then(function (response) {
-		    if (common.isError(response)) {
-			    res.json(401, response);
-		    } else {
-			    res.send(200, response);
-		    }
-	    });
+        globalController.getAttributeGroup().then(function (response) {
+            if (common.isError(response)) {
+                res.json(401, response);
+            } else {
+                res.send(200, response);
+            }
+        });
     });
 
     router.get('/attribute/:feature/:uuid', function (req, res) {

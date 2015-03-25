@@ -5,7 +5,7 @@ var schema = {
             table: "company"
         },
         attribute:{
-            table: "expense_company_attribute"
+            table: "person_attribute"
         }
     }
 

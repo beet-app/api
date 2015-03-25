@@ -95,7 +95,7 @@ module.exports = function(feature, repository, request) {
                     var data = request.data;
                     var arr = common.turnToArray(data);
 
-                    var arrUuids = [];
+                    var ct = 0;
                     for(var key in arr){
                         var validateObj = validate.validate(arr[key]);
                         if (common.isError(validateObj)){
@@ -106,9 +106,9 @@ module.exports = function(feature, repository, request) {
                                 if (common.isError(saveResult)){
                                     d.resolve(common.getErrorObj(mode + "_" + feature));
                                 }else{
-	                                arrUuids.push(saveResult);
-                                    if (arrUuids.length==arr.length){
-                                        d.resolve(common.getResultObj({uuid:arrUuids}));
+                                    ct++;
+                                    if (ct==arr.length){
+                                        d.resolve(common.getSuccessObj());
                                     }
                                 }
                             });

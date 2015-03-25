@@ -78,7 +78,6 @@ module.exports = function(feature){
 
         },
         getSaveObj: function(obj){
-
             var key;
             var x;
             var schema = common.getSchema(feature);
@@ -87,9 +86,9 @@ module.exports = function(feature){
                 obj.uuid = this.generateUUID();
             }
             var obj = this.merge(obj, schema);
-
             var parent = {table:feature,fields:{}};
             var children = [];
+	        var detail = null;
 
             if (common.isEmpty(schema.indexes)){
                 parent.indexes = ["uuid"];
@@ -100,7 +99,9 @@ module.exports = function(feature){
             var arrIndexes;
 
             for (key in obj){
-                if (typeof(obj[key])=="object"){
+	            if (key=="detail"){
+		            detail = obj[key];
+	            }else if (typeof(obj[key])=="object"){
 	                if (schema.fields[key].table.indexOf("attribute")>0){
 		                arrIndexes = ["attribute_uuid",feature+"_uuid"];
 	                }else{
@@ -115,12 +116,15 @@ module.exports = function(feature){
                     parent.fields[key] = obj[key];
                 }
             }
-            if (children.length>0){
-                return {parent:parent, children:children};
-            }else{
-                return parent;
-            }
+	        var returnObj = {parent:parent};
 
+            if (children.length>0){
+	            returnObj.children = children;
+            }
+	        if (!common.isEmpty(detail)){
+		        returnObj.detail = detail;
+            }
+			return returnObj;
         },
 
         merge: function(obj, featureSchema){
@@ -130,6 +134,25 @@ module.exports = function(feature){
             var childrenSchema;
             var children;
             var schema = {};
+	        if (common.hasDetail(featureSchema)){
+				var arrDetail = [];
+
+		        for (x=0 ; x<obj.detail.length ; x++){
+			        var objDetail = {};
+			        objDetail.uuid = this.generateUUID();
+			        objDetail[featureSchema.detail.attribute.table.replace("_detail_attribute","_uuid")] = obj.uuid;
+			        objDetail.attribute = [];
+			        for (y=0 ; y<obj.detail[x].attribute.length ; y++) {
+				        var objDetailAttribute = {};
+				        objDetailAttribute.attribute_uuid = obj.detail[x].attribute[y].uuid;
+				        objDetailAttribute.value = obj.detail[x].attribute[y].value;
+				        objDetailAttribute[featureSchema.detail.attribute.table.replace("_attribute","_uuid")] = objDetail.uuid;
+				        objDetail.attribute.push(objDetailAttribute);
+			        }
+			        arrDetail.push(objDetail);
+		        }
+		        schema.detail = arrDetail;
+	        }
 
 	        featureSchema = featureSchema.fields;
             for (key in featureSchema){
@@ -162,6 +185,9 @@ module.exports = function(feature){
                                     children[feature + "_uuid"] = obj.uuid;
                                     children["attribute_uuid"] = arrChildren[x].attribute;
                                     children["value"] = arrChildren[x].value;
+									if (!common.isEmpty(arrChildren[x].sequence)){
+										children["sequence"] = arrChildren[x].sequence;
+									}
                                 }else if (childrenSchema!=null){
                                     arrChildren[x][feature] = obj.uuid;
                                     children = this.merge(arrChildren[x], childrenSchema)

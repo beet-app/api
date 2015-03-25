@@ -4,11 +4,13 @@ var schema = {
         company:{
             table: "company"
         },
+        person:{
+            table: "person"
+        },
         attribute:{
-            table: "expense_company_attribute"
+            table: "contract_attribute"
         }
     }
-
 };
 module.exports = schema;
 
