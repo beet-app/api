@@ -196,7 +196,6 @@ module.exports = function(repository, request) {
 
 
             repository.getAttributeValueGroupByCompanyFeature(company_uuid, feature).then(function(dataSet){
-
                 if (dataSet.rows.length>0){
                     if (hasDetail){
                         controller.getDetailAttributeValueGroupByCompanyFeatureAsDict(company_uuid, feature).then(function(responseDictDetail) {
@@ -253,6 +252,8 @@ module.exports = function(repository, request) {
                         d.resolve(common.getResultObj(arr));
                     }
 
+                }else{
+                    d.resolve(common.getResultObj([]));
                 }
             });
             return d.promise;

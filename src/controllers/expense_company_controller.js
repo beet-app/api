@@ -8,7 +8,7 @@ module.exports = function (repository, request) {
 
             var controller = common.getController("expense_company",request);
 
-            d.resolve(controller.getAllByCompany());
+            d.resolve(controller.getAllByCompany(request.params.uuid));
 
             return d.promise;
         }

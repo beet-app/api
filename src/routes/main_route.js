@@ -112,17 +112,17 @@ module.exports = function (app, passport) {
             }
         });
     });
-	router.post("/:feature/save", function (req, res) {
-		var globalController = common.getController(req.params.feature, req);
+    router.post("/:feature/save", function (req, res) {
+        var globalController = common.getController(req.params.feature, req);
 
-		globalController.save("save").then(function (response) {
-			if (common.isError(response)) {
-				res.json(401, response);
-			} else {
-				res.send(200, response);
-			}
-		});
-	});
+        globalController.save("save").then(function (response) {
+            if (common.isError(response)) {
+                res.json(401, response);
+            } else {
+                res.send(200, response);
+            }
+        });
+    });
     router.get("/:feature", function (req, res) {
         var globalController = common.getController(req.params.feature, req);
 
@@ -134,17 +134,17 @@ module.exports = function (app, passport) {
             }
         });
     });
-	router.get("/:feature/:uuid", function (req, res) {
-		var globalController = common.getController(req.params.feature, req);
+    router.get("/:feature/:uuid", function (req, res) {
+        var globalController = common.getController(req.params.feature, req);
 
-		globalController.find().then(function (response) {
-			if (common.isError(response)) {
-				res.json(401, response);
-			} else {
-				res.send(200, response);
-			}
-		});
-	});
+        globalController.find().then(function (response) {
+            if (common.isError(response)) {
+                res.json(401, response);
+            } else {
+                res.send(200, response);
+            }
+        });
+    });
     router.get("/1/:feature", function (req, res) {
         var globalController = common.getController(req.params.feature, req);
 
@@ -182,30 +182,30 @@ module.exports = function (app, passport) {
         });
 
     });
-	router.get("/:feature/all-by-person", function (req, res) {
-		var globalController = common.getController(req.params.feature, req);
+    router.get("/:feature/all-by-person", function (req, res) {
+        var globalController = common.getController(req.params.feature, req);
 
-		globalController.getAllByPerson().then(function (response) {
-			if (common.isError(response)) {
-				res.json(401, response);
-			} else {
-				res.send(200, response);
-			}
-		});
+        globalController.getAllByPerson().then(function (response) {
+            if (common.isError(response)) {
+                res.json(401, response);
+            } else {
+                res.send(200, response);
+            }
+        });
 
-	});
-	router.get("/:feature/all-by-company", function (req, res) {
-		var globalController = common.getController(req.params.feature, req);
+    });
+    router.get("/:feature/all-by-company", function (req, res) {
+        var globalController = common.getController(req.params.feature, req);
 
-		globalController.getAllByCompany().then(function (response) {
-			if (common.isError(response)) {
-				res.json(401, response);
-			} else {
-				res.send(200, response);
-			}
-		});
+        globalController.getAllByCompany().then(function (response) {
+            if (common.isError(response)) {
+                res.json(401, response);
+            } else {
+                res.send(200, response);
+            }
+        });
 
-	});
+    });
 
     router.post("/:feature/all-by-attributes", function (req, res) {
         var globalController = common.getController(req.params.feature, req);
@@ -233,18 +233,18 @@ module.exports = function (app, passport) {
     });
 
     router.get('/attribute/:feature', function (req, res) {
-	    var feature = req.params.feature;
-	    var uuid = req.params.uuid;
+        var feature = req.params.feature;
+        var uuid = req.params.uuid;
 
-	    var globalController = common.getController("attribute");
+        var globalController = common.getController("attribute");
 
-	    globalController.getAttributeGroupByFeature(feature, uuid).then(function (response) {
-		    if (common.isError(response)) {
-			    res.json(401, response);
-		    } else {
-			    res.send(200, response);
-		    }
-	    });
+        globalController.getAttributeGroupByFeature(feature, uuid).then(function (response) {
+            if (common.isError(response)) {
+                res.json(401, response);
+            } else {
+                res.send(200, response);
+            }
+        });
     });
 
     router.get('/attribute/:feature/:uuid', function (req, res) {
