@@ -94,14 +94,16 @@ module.exports = {
         }
 
         var query = "";
-        query += " select ";
-        query += " vfa."+feature+"_uuid 'feature_uuid', ag.description 'group', a.description, vfa.value ";
-        query += " from attribute a ";
-        query += " inner join attribute_group ag on a.attribute_group_uuid=ag.uuid ";
-        query += " inner join attribute_group_feature agf on ag.uuid=agf.attribute_group_uuid ";
-        query += " inner join feature f on f.uuid=agf.feature_uuid and f.description='"+feature+"' ";
-        query += " inner join "+feature+" feat on feat.uuid in ("+strUuidFilter+")";
-        query += " left join "+feature+"_attribute vfa on vfa.attribute_uuid=a.uuid";
+        query += " select";
+        query += " f.uuid 'feature_uuid', ag.description 'group', a.description, vfa.value";
+        query += " from attribute a";
+        query += " inner join attribute_group ag on (a.attribute_group_uuid = ag.uuid)";
+        query += " inner join attribute_group_feature agf on (ag.uuid = agf.attribute_group_uuid)";
+        query += " inner join feature f on (f.uuid = agf.feature_uuid)";
+        query += " left join "+feature+"_attribute vfa on (vfa.attribute_uuid = a.uuid)";
+        query += " left join "+feature+" feat on (feat.uuid = vfa."+feature+"_uuid)";
+        query += " where f.description = '"+feature+"' ";
+        query += " and feat.uuid in ("+strUuidFilter+")";
         query += " order by vfa."+feature+"_uuid,ag.description, a.order ";
 
         var ct = -1;
@@ -244,9 +246,22 @@ module.exports = {
             d.resolve(dataSet);
         });
         return d.promise;
+    },
+
+    getAttributeGroupByGroup: function (attribute_group, uuid) {
+        var d = new q.defer();
+
+        var query = "";
+        query += " select c.description";
+        query += " from attribute_group a";
+        query += " inner join attribute_group_feature b on (b.attribute_group_uuid = a.uuid)";
+        query += " inner join feature c on (c.uuid = b.feature_uuid)";
+        query += " where a.description = '" + attribute_group + "';";
+
+        conn.query(query).then(function(dataSet){
+            d.resolve(dataSet);
+        });
+
+        return d.promise;
     }
 }
-
-
-
-
