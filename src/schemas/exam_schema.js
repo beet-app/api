@@ -4,19 +4,17 @@ var schema = {
         company:{
             table: "company"
         },
-        candidate:{
-            table: "exam_candidate"
-        },
         attribute:{
             table: "exam_attribute"
         }
     },
     detail:{
         attribute:{
-            table: "candidate_attribute"
+            table: "exam_detail_attribute"
+        },
+        candidate:{
+            table: "candidate"
         }
     }
-
 };
 module.exports = schema;
-
