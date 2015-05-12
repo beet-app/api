@@ -13,7 +13,7 @@ module.exports = {
         'http://localhost:3000',
         'http://192.168.25.17:3000',
         'http://192.168.16.127:3000',
-        'http://localhost'
+        'http://192.168.25.7:3000'
 
     ]
 };
