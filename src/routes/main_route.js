@@ -53,7 +53,7 @@ module.exports = function (app, passport) {
 
     });
 
-    router.post('/company/choose', isLoggedIn,passport.authenticate('choose-company'),
+    router.post('/company/choose', isLoggedIn,
         function (req, res) {
 
             var userController = common.getController("user", req);

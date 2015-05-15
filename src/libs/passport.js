@@ -21,9 +21,7 @@ module.exports = function(passport) {
       //common.log(user);
         var data = {};
         data.uuid = user.data.uuid;
-        if (user.data.company){
             data.company = user.data.company;
-        }
       //common.log(data);
         done(null, data);
     });
@@ -116,6 +114,9 @@ module.exports = function(passport) {
                                 return done(null, false, companyResponse)
                             } else {
                                 user.companies = companyResponse.data;
+                            }
+                            if (user.companies.length==1){
+                                user.company = user.companies[0].uuid;
                             }
 
                             return done(null, common.getResultObj(user));
