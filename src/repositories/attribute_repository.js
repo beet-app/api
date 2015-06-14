@@ -183,7 +183,6 @@ module.exports = {
 
     getDetailAttributeValueGroupByCompanyFeatureAsDict : function(company_uuid, feature){
         var d = new q.defer();
-
         var query = "";
         query += " select ";
         query += " detail.*, ag.description 'attribute_group', a.description 'attribute_description', vfa.value 'attribute_value'";

@@ -224,11 +224,9 @@ module.exports = function(repository, request) {
                                 }
                                 arr[ct].attributes[group][description] = value;
                             }
-
                             d.resolve(common.getResultObj(arr));
                         });
                     }else {
-
                         for (var x = 0; x < dataSet.rows.length; x++) {
                             group = dataSet.rows[x].attribute_group;
                             description = dataSet.rows[x].attribute_description;
@@ -268,7 +266,8 @@ module.exports = function(repository, request) {
             var obj = {};
             var group, description, value;
             repository.getDetailAttributeValueGroupByCompanyFeatureAsDict(company_uuid, feature).then(function (dataSet) {
-
+console.log("--------aa-----");
+                console.log(dataSet.rows);
                 if (dataSet.rows.length > 0) {
                     for (var x = 0; x < dataSet.rows.length; x++) {
                         group = dataSet.rows[x].attribute_group;
@@ -297,6 +296,8 @@ module.exports = function(repository, request) {
                         obj[arr[x][feature + "_uuid"]].push(arr[x]);
                     }
                     d.resolve(common.getResultObj(obj));
+                }else{
+                    d.resolve(common.getResultObj([]));
                 }
 
             });

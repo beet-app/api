@@ -2,7 +2,7 @@ var q = require("q");
 var common = require("../libs/common");
 var driver = require("../libs/driver_mysql");
 
-var log = false;
+var log = true;
 
 var lib = {
 	query: function (query) {
