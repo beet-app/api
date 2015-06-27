@@ -6,7 +6,7 @@ module.exports = function(repository, request) {
     var controller =  {
         getAttributeGroupByFeature: function (feature, uuid) {
             var d = new q.defer();
-	        var hasDetail = common.hasDetail(common.getSchema(feature));
+            var hasDetail = common.hasDetail(common.getSchema(feature));
             attributeTypeController.getAllAsDict().then(function(attributeTypeDict) {
                 repository.getAttributeGroupByFeature(feature, uuid).then(function (dataSet) {
                     if (common.isError(dataSet)) {
@@ -28,16 +28,16 @@ module.exports = function(repository, request) {
                             }
                             obj[dataSet.rows[x].group].push(attr);
                         }
-	                    if (hasDetail){
-		                    controller.getDetailAttributeValueGroupByFeature(feature, uuid, attributeTypeDict).then(function(detailData){
-			                    if (!common.isError(detailData)) {
-				                    obj.detail = detailData.data;
-			                    }
-			                    d.resolve(common.getResultObj(obj));
-		                    });
-	                    }else{
-		                    d.resolve(common.getResultObj(obj));
-	                    }
+                        if (hasDetail){
+                            controller.getDetailAttributeValueGroupByFeature(feature, uuid, attributeTypeDict).then(function(detailData){
+                                if (!common.isError(detailData)) {
+                                    obj.detail = detailData.data;
+                                }
+                                d.resolve(common.getResultObj(obj));
+                            });
+                        }else{
+                            d.resolve(common.getResultObj(obj));
+                        }
                     }
                 });
             });
@@ -58,7 +58,7 @@ module.exports = function(repository, request) {
                         }
                         obj[dataSet.rows[x].group][dataSet.rows[x].description] = dataSet.rows[x].value;
                     }
-	                d.resolve(common.getResultObj(obj));
+                    d.resolve(common.getResultObj(obj));
 
                 }
 
@@ -75,22 +75,22 @@ module.exports = function(repository, request) {
                 }else{
 
 
-	                var obj = {};
-	                for (var x = 0; x < dataSet.rows.length; x++) {
-		                if (!obj[dataSet.rows[x].group]) {
-			                obj[dataSet.rows[x].group]=[];
-		                }
+                    var obj = {};
+                    for (var x = 0; x < dataSet.rows.length; x++) {
+                        if (!obj[dataSet.rows[x].group]) {
+                            obj[dataSet.rows[x].group]=[];
+                        }
 
-		                var attr = {};
-		                for (var y = 0; y < dataSet.fields.length; y++) {
-			                if (dataSet.fields[y].name == "attribute_type_uuid") {
-				                attr["type"] = attributeTypeDict.data[dataSet.rows[x][dataSet.fields[y].name]];
-			                } else {
-				                attr[dataSet.fields[y].name] = dataSet.rows[x][dataSet.fields[y].name];
-			                }
-		                }
-		                obj[dataSet.rows[x].group].push(attr);
-	                }
+                        var attr = {};
+                        for (var y = 0; y < dataSet.fields.length; y++) {
+                            if (dataSet.fields[y].name == "attribute_type_uuid") {
+                                attr["type"] = attributeTypeDict.data[dataSet.rows[x][dataSet.fields[y].name]];
+                            } else {
+                                attr[dataSet.fields[y].name] = dataSet.rows[x][dataSet.fields[y].name];
+                            }
+                        }
+                        obj[dataSet.rows[x].group].push(attr);
+                    }
 
                     d.resolve(common.getResultObj(obj));
 
@@ -112,6 +112,44 @@ module.exports = function(repository, request) {
                 }
             });
 
+            return d.promise;
+        },
+
+        getAllByFeature: function (main_feature, feature, feature_uuid) {
+            var d = new q.defer();
+
+            var ct = -1;
+            var old_uuid = "";
+            var arr = [];
+            var group, description, value, sequence;
+
+
+            repository.getAllByFeature(main_feature, feature, feature_uuid).then(function(dataSet){
+
+                if (dataSet.rows.length>0){
+                    for (var x=0 ; x<dataSet.rows.length ; x++){
+                        group = dataSet.rows[x].attribute_group;
+                        description = dataSet.rows[x].attribute_description;
+                        value = dataSet.rows[x].attribute_value;
+                        if (dataSet.rows[x].uuid != old_uuid){
+                            ct++;
+                            old_uuid = dataSet.rows[x].uuid;
+                            arr[ct] = dataSet.rows[x];
+                            delete arr[ct].attribute_group;
+                            delete arr[ct].attribute_description;
+                            delete arr[ct].attribute_value;
+                            arr[ct].attributes = {};
+                        }
+                        if (!arr[ct].attributes[group]){
+                            arr[ct].attributes[group] = {};
+                        }
+
+                        arr[ct].attributes[group][description] = value;
+
+                    }
+                }
+                d.resolve(common.getResultObj(arr));
+            });
             return d.promise;
         },
 
@@ -372,7 +410,7 @@ console.log("--------aa-----");
                     }
 
                 }else{
-	                d.resolve(common.getResultObj([]));
+                    d.resolve(common.getResultObj([]));
                 }
             });
             return d.promise;
@@ -427,6 +465,5 @@ console.log("--------aa-----");
     return controller;
 
 }
-
 
 

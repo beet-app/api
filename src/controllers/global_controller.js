@@ -10,8 +10,6 @@ module.exports = function(feature, repository, request) {
         getAll: function () {
             var d = new q.defer();
 
-
-
             var queryBuilder = {
                 table: feature
             };
@@ -27,7 +25,6 @@ module.exports = function(feature, repository, request) {
             });
 
             return d.promise;
-
         },
         getOne: function (search) {
             var d = new q.defer();
@@ -62,6 +59,46 @@ module.exports = function(feature, repository, request) {
 
             return d.promise;
 
+        },
+        getOneById: function (uuid) {
+            var d = new q.defer();
+            uuid = common.isEmpty(uuid) ? request.params.uuid : uuid;
+            var ct = -1;
+            var old_uuid = "";
+            var arr = [];
+            var group, description, value;
+
+            repository.getOne(uuid).then(function(dataSet){
+                if (dataSet.rows.length>0){
+
+                  for (var x = 0; x < dataSet.rows.length; x++) {
+                      group = dataSet.rows[x].attribute_group;
+                      description = dataSet.rows[x].attribute_description;
+                      value = dataSet.rows[x].attribute_value;
+                      if (dataSet.rows[x].uuid != old_uuid) {
+                          ct++;
+                          old_uuid = dataSet.rows[x].uuid;
+                          arr[ct] = dataSet.rows[x];
+                          delete arr[ct].attribute_group;
+                          delete arr[ct].attribute_description;
+                          delete arr[ct].attribute_value;
+                          arr[ct].attributes = {};
+                      }
+                      if (!arr[ct].attributes[group]) {
+                          arr[ct].attributes[group] = {};
+                      }
+
+                      arr[ct].attributes[group][description] = value;
+
+                  }
+                  d.resolve(common.getResultObj(arr));
+
+
+                }else{
+                    d.resolve(common.getResultObj([]));
+                }
+            });
+            return d.promise;
         },
         find: function () {
             var d = new q.defer();
@@ -167,6 +204,23 @@ module.exports = function(feature, repository, request) {
                 }else{
                     d.resolve(common.getResultObj(dataSet.data));
                 }
+            });
+
+            return d.promise;
+        },
+        getAllByFeature: function (feature_name, feature_uuid){
+            var d = new q.defer();
+
+            feature_name = common.isEmpty(feature_name) ? request.params.feature_name : feature_name;
+            feature_uuid = common.isEmpty(feature_uuid) ? request.params.feature_uuid : feature_uuid;
+
+            repository.getAllByFeature(feature_name, feature_uuid).then(function(dataSet){
+                if (common.isError(dataSet)){
+                    d.resolve(common.getErrorObj("find_" + feature));
+                }else{
+                    d.resolve(common.getResultObj(dataSet.data));
+                }
+
             });
 
             return d.promise;

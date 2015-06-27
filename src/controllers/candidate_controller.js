@@ -3,46 +3,6 @@ var common = require("../libs/common");
 
 module.exports = function (repository, request) {
     var controller = {
-        getByExam: function (uuid){
-            var d = new q.defer();
-            uuid = common.isEmpty(uuid) ? request.params.uuid : uuid;
-            var ct = -1;
-            var old_uuid = "";
-            var arr = [];
-            var group, description, value;
-
-            repository.getByExam(uuid).then(function(dataSet){
-                if (dataSet.rows.length>0){
-
-                  for (var x = 0; x < dataSet.rows.length; x++) {
-                      group = dataSet.rows[x].attribute_group;
-                      description = dataSet.rows[x].attribute_description;
-                      value = dataSet.rows[x].attribute_value;
-                      if (dataSet.rows[x].uuid != old_uuid) {
-                          ct++;
-                          old_uuid = dataSet.rows[x].uuid;
-                          arr[ct] = dataSet.rows[x];
-                          delete arr[ct].attribute_group;
-                          delete arr[ct].attribute_description;
-                          delete arr[ct].attribute_value;
-                          arr[ct].attributes = {};
-                      }
-                      if (!arr[ct].attributes[group]) {
-                          arr[ct].attributes[group] = {};
-                      }
-
-                      arr[ct].attributes[group][description] = value;
-
-                  }
-                  d.resolve(common.getResultObj(arr));
-
-
-                }else{
-                    d.resolve(common.getResultObj([]));
-                }
-            });
-            return d.promise;
-        },
         save:function(mode){
           var d = new q.defer();
           var candidate = request.data;
@@ -62,9 +22,7 @@ module.exports = function (repository, request) {
                 };
 
                 var examController = common.getController("exam",request);
-                  console.log("1");
                 examController.saveDetail(obj).then(function(detailResponse){
-                  console.log("99");
                   if (common.isError(detailResponse)){
                     d.resolve(common.getErrorObj("save_exam_detail"));
                   }else{

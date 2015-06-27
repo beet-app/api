@@ -129,6 +129,26 @@ module.exports = {
         });
         return d.promise;
     },
+    getAllByFeature: function (main_feature, feature, feature_uuid) {
+        var d = new q.defer();
+
+        var query = "";
+        query += " select ";
+        query += " feat.*, ag.description 'attribute_group', a.description 'attribute_description', vfa.value 'attribute_value'";
+        query += " from attribute a ";
+        query += " inner join attribute_group ag on a.attribute_group_uuid=ag.uuid ";
+        query += " inner join attribute_group_feature agf on ag.uuid=agf.attribute_group_uuid ";
+        query += " inner join feature f on f.uuid=agf.feature_uuid and f.description='"+main_feature+"' ";
+        query += " inner join "+main_feature+" feat on feat."+feature+"_uuid = '"+feature_uuid+"'";
+        query += " left join "+main_feature+"_attribute vfa on vfa.attribute_uuid=a.uuid and vfa."+main_feature+"_uuid=feat.uuid ";
+        query += " where vfa.value is not null ";
+        query += " order by feat.uuid,ag.description, a.order";
+
+        conn.query(query).then(function(dataSet){
+            d.resolve(dataSet);
+        });
+        return d.promise;
+    },
     getAttributeValueGroupByUserFeature: function (user_uuid, feature, multiple) {
         var d = new q.defer();
 

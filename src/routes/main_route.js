@@ -145,6 +145,16 @@ module.exports = function (app, passport) {
             }
         });
     });
+    router.get("/find/:feature/:feature_name/:featute_uuid", function (req, res) {
+        var globalController = common.getController(req.params.feature, req);
+        globalController.getAllByFeature(req.params.feature_name, req.params.feature_uuid).then(function (response) {
+            if (common.isError(response)) {
+                res.json(401, response);
+            } else {
+                res.send(200, response);
+            }
+        });
+    });
     router.get("/1/:feature", function (req, res) {
         var globalController = common.getController(req.params.feature, req);
 
@@ -280,19 +290,6 @@ module.exports = function (app, passport) {
 
     });
 
-
-    router.get('/candidate/exam/:uuid', isLoggedIn, function (req, res) {
-        var candidateController = common.getController("candidate", req);
-
-        candidateController.getByExam().then(function (response) {
-            if (common.isError(response)) {
-                res.json(401, response);
-            } else {
-                res.send(200, response);
-            }
-        });
-
-    });
 
     router.get('/teste/:feature',
         function (req, res) {
