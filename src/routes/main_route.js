@@ -145,7 +145,7 @@ module.exports = function (app, passport) {
             }
         });
     });
-    router.get("/find/:feature/:feature_name/:featute_uuid", function (req, res) {
+    router.get("/find/:feature/:feature_name/:feature_uuid", function (req, res) {
         var globalController = common.getController(req.params.feature, req);
         globalController.getAllByFeature(req.params.feature_name, req.params.feature_uuid).then(function (response) {
             if (common.isError(response)) {
@@ -289,26 +289,6 @@ module.exports = function (app, passport) {
         });
 
     });
-
-
-    router.get('/teste/:feature',
-        function (req, res) {
-            var conn = common.getLib("conn");
-            conn.query("select * from " + req.params.feature).then(function (dataSet) {
-                res.json(dataSet.rows);
-            });
-            //res.redirect("http://127.0.0.1:9000/#/home");
-        }
-    );
-    router.get('/teste2/:feature',
-        function (req, res) {
-            var ct = common.getController(req.params.feature);
-            ct.getAttributeGroup().then(function (teste) {
-                res.json(teste);
-            });
-            //res.redirect("http://127.0.0.1:9000/#/home");
-        }
-    );
 
     return router;
 };
