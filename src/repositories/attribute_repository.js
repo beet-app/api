@@ -141,7 +141,7 @@ module.exports = {
         query += " inner join feature f on f.uuid=agf.feature_uuid and f.description='"+main_feature+"' ";
         query += " inner join "+main_feature+" feat on feat."+feature+"_uuid = '"+feature_uuid+"'";
         query += " left join "+main_feature+"_attribute vfa on vfa.attribute_uuid=a.uuid and vfa."+main_feature+"_uuid=feat.uuid ";
-        query += " where vfa.value is not null ";
+        //query += " where vfa.value is not null ";
         query += " order by feat.uuid,ag.description, a.order";
 
         conn.query(query).then(function(dataSet){

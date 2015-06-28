@@ -68,9 +68,8 @@ module.exports = function(feature, repository, request) {
             var arr = [];
             var group, description, value;
 
-            repository.getOne(uuid).then(function(dataSet){
+            repository.getOneById(uuid).then(function(dataSet){
                 if (dataSet.rows.length>0){
-
                   for (var x = 0; x < dataSet.rows.length; x++) {
                       group = dataSet.rows[x].attribute_group;
                       description = dataSet.rows[x].attribute_description;
