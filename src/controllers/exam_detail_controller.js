@@ -33,7 +33,7 @@ module.exports = function (repository, request) {
                             });
                         }
                     }else{
-                        d.resolve(common.getResultObj([]]));
+                        d.resolve(common.getResultObj([]));
                     }
 
 
