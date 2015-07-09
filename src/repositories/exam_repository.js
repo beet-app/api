@@ -4,7 +4,7 @@ var conn = common.getLib('conn');
 
 module.exports = {
     saveDetail: function (obj) {
-console.log("3");
+
         var d = new q.defer();
 
         var uuid = require('node-uuid');
@@ -22,19 +22,13 @@ console.log("3");
  
         };
 
-
         conn.save(objSave, "save").then(function(mainResult){
-console.log("4");
             d.resolve(mainResult);
 
         });
 
         return d.promise;
     }
-
-
-
-
 };
 
 
