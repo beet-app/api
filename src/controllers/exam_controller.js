@@ -14,9 +14,8 @@ module.exports = function (repository, request) {
         },
         saveDetail : function(obj){
             var d = new q.defer();
-            console.log("2");
+
             repository.saveDetail(obj).then(function(saveResult){
-                console.log("98");
                 if (common.isError(saveResult)){
                     d.resolve(common.getErrorObj("save_exam_detail"));
                 }else{
@@ -28,4 +27,3 @@ module.exports = function (repository, request) {
     };
     return controller;
 };
-
