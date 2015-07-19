@@ -167,20 +167,7 @@ module.exports = function (app, passport) {
         });
 
     });
-    router.get("/1/:feature", function (req, res) {
-        var globalController = common.getController(req.params.feature, req);
-
-        globalController.find().then(function (response) {
-            if (common.isError(response)) {
-                res.json(401, response);
-            } else {
-                res.send(200, response);
-            }
-        });
-
-    });
     router.get("/:feature/all", function (req, res) {
-        common.log(req.headers);
         var globalController = common.getController(req.params.feature, req);
 
         globalController.getAll().then(function (response) {
@@ -241,10 +228,10 @@ module.exports = function (app, passport) {
         });
     });
 
-    router.delete("/:feature", function (req, res) {
+    router.delete("/:feature/:uuid", function (req, res) {
         var globalController = common.getController(req.params.feature, req);
 
-        globalController.delete().then(function (response) {
+        globalController.delete().then(function(response) {
             if (common.isError(response)) {
                 res.json(401, response);
             } else {
