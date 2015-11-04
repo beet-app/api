@@ -15,11 +15,13 @@ var common = require("./src/libs/common");
 
 app.use(cors(common.getConfig('cors')));
 
-
 var port = process.env.PORT || 1313; 		// set our port// load the config
 
-
 var database = common.getConfig('database');
+
+var AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
+var AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;
+var S3_BUCKET = process.env.S3_BUCKET;
 
 
 app.use(morgan('dev')); // log every request to the console
