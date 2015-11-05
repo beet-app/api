@@ -1,5 +1,9 @@
 // Load the AWS SDK for Node.js
 var aws = require('aws-sdk');
+var fs = require('fs');
+
+aws.config.update({accessKeyId: AWS_ACCESS_KEY , secretAccessKey: AWS_SECRET_KEY });
+aws.config.update({region: 'us-west-2' , signatureVersion: 'v4' });
 
 module.exports = {
     createBucket: function(data){
@@ -42,6 +46,20 @@ module.exports = {
     },
     putObject: function(bucketName){
 
+        var params = {
+            Bucket: S3_BUCKET, /* required */
+            ACL: 'public-read',
+            RequestPayer: 'requester',
+            ServerSideEncryption: 'AES256 | aws:kms',
+            StorageClass: 'STANDARD'
+        };
+
+        s3.putObject(params, function(err, data) {
+            if (err)
+                console.log(err, err.stack); // an error occurred
+            else
+                console.log(data);           // successful response
+        });
     },
     getObject: function(bucketName){
 

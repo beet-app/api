@@ -289,6 +289,10 @@ module.exports = function (app, passport) {
 
     });
 
+    router.post('/aws/file/upload', function(req, res){
+        console.log(req);
+    });
+
     return router;
 };
 
