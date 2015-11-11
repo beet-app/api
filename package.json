@@ -5,6 +5,7 @@
   "main": "server.js",
   "author": "Thiago Kroger",
   "dependencies": {
+    "aws-sdk": "^2.2.15",
     "bcrypt-nodejs": "latest",
     "body-parser": "~1.0.1",
     "connect-flash": "~0.1.1",
@@ -24,6 +25,7 @@
     "passport-local": "~0.1.6",
     "passport-twitter": "~1.0.2",
     "q": "^1.1.2",
+    "s3fs": "git+https://github.com/RiptideElements/s3fs.git",
     "validator": "^3.22.1"
   }
 }

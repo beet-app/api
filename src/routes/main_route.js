@@ -1,8 +1,11 @@
-var router = require("express").Router();
-var common = require("../libs/common");
+var router = require('express').Router();
+var common = require('../libs/common');
+
+var multiparty = require('connect-multiparty'),
+    multipartyMiddleware = multiparty();
 
 module.exports = function (app, passport) {
-
+    router.use(multipartyMiddleware);
 
     /*
      AUTHENTICATION ROUTES
@@ -290,7 +293,16 @@ module.exports = function (app, passport) {
     });
 
     router.post('/aws/file/upload', function(req, res){
-        console.log(req);
+        var aws = require('../libs/aws');
+        var file = req.files.file;
+
+        aws.putObject(file).then(function(response){
+            if (common.isError(response)) {
+                res.json(401, response);
+            } else {
+                res.send(200, response);
+            }
+        });
     });
 
     return router;
